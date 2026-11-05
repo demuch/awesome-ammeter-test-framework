@@ -89,7 +89,7 @@ every following request got `ConnectionRefusedError` until restart. One misbehav
 
 **Fix (`base_ammeter.py`):**
 - An unknown command is answered with `ERROR: unknown command <received bytes>` (truncated to 100 bytes) and logged on
-  the server side. Real instruments behave the same way (e.g. SCPI reports "Undefined header").
+  the server side, so the client can tell a wrong command from a lost reply.
 - Handling of one request moved to `_handle_request()`; any exception there is logged and the server keeps serving.
 - A connection closed without a command is ignored instead of being treated as an unknown command.
 
@@ -109,4 +109,3 @@ These issues are in the code that the testing framework replaces or wraps; they 
 - `Ammeters/base_ammeter.py`: one client is served at a time; a single `recv(1024)` assumes the whole command arrives
   in one TCP segment.
 - `README.md`: file names do not match the repository (`Ammeters/main.py`, `AmmeterTester.py`, `run_test.py`).
-- CIRCUTOR: `sum(v * dt)` yields volt-seconds; a real Rogowski coil needs a sensitivity coefficient to get amperes.
