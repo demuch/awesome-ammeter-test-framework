@@ -64,7 +64,7 @@ def current_environment() -> Dict[str, str]:
     Describes where the code runs, so a result can be traced back to the code that produced it.
 
     :returns: Python version, operating system and git commit of the project; the commit gets ``+dirty``
-        if there are uncommitted changes, and is ``"unknown"`` outside a git repository.
+        if Python files have uncommitted changes, and is ``"unknown"`` outside a git repository.
     """
     return {
         "python": platform.python_version(),
@@ -75,15 +75,16 @@ def current_environment() -> Dict[str, str]:
 
 def _git_version() -> str:
     """
-    :returns: Short commit hash, with ``+dirty`` if files have uncommitted changes, or ``"unknown"``.
+    :returns: Short commit hash, with ``+dirty`` if Python files have uncommitted changes, or ``"unknown"``.
     """
     try:
         def git(*args: str) -> str:
             return subprocess.run(["git", *args], cwd=PROJECT_ROOT, capture_output=True, text=True,
                                   timeout=5, check=True).stdout.strip()
         commit = git("rev-parse", "--short", "HEAD")
-        # New files that are not committed yet change the code as much as edited ones
-        return commit + ("+dirty" if git("status", "--porcelain") else "")
+        # Only Python files count: other files (e.g. saved output) do not change the code. New files that
+        # are not committed yet change it as much as edited ones, so untracked files are included.
+        return commit + ("+dirty" if git("status", "--porcelain", "--", "*.py") else "")
     except (OSError, subprocess.SubprocessError):  # git not installed, not a repository, ...
         return "unknown"
 

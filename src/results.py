@@ -87,11 +87,14 @@ def _list(archive: ResultArchive, ammeter: Optional[str]) -> None:
     if not records:
         print(f"No runs in {archive.directory}" + (f" for ammeter {ammeter!r}" if ammeter else ""))
         return
-    print(f"{'RUN ID':<36}{'AMMETER':<11}{'MEASUREMENTS':>12}{'OK':>6}{'MEAN':>11}{'STDEV':>11}")
+    # Column widths follow the longest ID and ammeter name, so long names do not run into the next column
+    id_width = max(len(r.run_id) for r in records) + 2
+    name_width = max(len("AMMETER"), *(len(r.result.ammeter) for r in records)) + 2
+    print(f"{'RUN ID':<{id_width}}{'AMMETER':<{name_width}}{'MEASUREMENTS':>12}{'OK':>6}{'MEAN':>11}{'STDEV':>11}")
     for r in records:
         values = r.result.values
-        print(f"{r.run_id:<36}{r.result.ammeter:<11}{len(r.result.series.samples):>12}{r.result.success_rate:>6.0%}"
-              f"{_format(values.mean, 'value'):>11}{_format(values.stdev, 'value'):>11}")
+        print(f"{r.run_id:<{id_width}}{r.result.ammeter:<{name_width}}{len(r.result.series.samples):>12}"
+              f"{r.result.success_rate:>6.0%}{_format(values.mean, 'value'):>11}{_format(values.stdev, 'value'):>11}")
 
 
 def _show(record: RunRecord) -> str:
