@@ -1,7 +1,9 @@
 testing:
+  # Set any two of the three values, the third one is computed (count = duration x frequency).
+  # If all three are set, they must agree.
   sampling:
-    measurements_count: NULL
-    total_duration_seconds: NULL
+    measurements_count: 20
+    total_duration_seconds: 2
     sampling_frequency_hz: NULL
 
 # Each ammeter: port and command are required; host (default localhost) and timeout (seconds, default 5) are optional.
