@@ -1,0 +1,4 @@
+# Everything needed to run the tests; the framework itself needs only requirements.txt
+-r requirements.txt
+pytest>=7.0
+pytest-cov>=4.0
