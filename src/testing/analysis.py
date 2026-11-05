@@ -1,8 +1,10 @@
 import statistics
+from collections import Counter
 from dataclasses import dataclass
-from typing import Optional, Sequence
+from typing import Callable, Dict, Optional, Sequence, Tuple
 
 from src.testing.sampling import SampleSeries
+from src.utils.config import ConfigError
 
 # Names of all metrics, in report order; also the allowed values of analysis.statistical_metrics
 METRICS = ("mean", "median", "stdev", "min", "max", "relative_spread")
@@ -88,3 +90,75 @@ def analyze(series: SampleSeries) -> TestResult:
     """
     durations = [s.measurement.duration_s for s in series.samples]
     return TestResult(series, ValueStats.from_values(series.values), ValueStats.from_values(durations))
+
+
+def report_metrics_from_config(config: Dict) -> Tuple[str, ...]:
+    """
+    Reads which metrics the report shows from ``analysis.statistical_metrics``. All metrics are always
+    computed; this setting only selects what is printed.
+
+    :param config: Configuration as returned by :func:`src.utils.config.load_config`.
+    :returns: Metric names in report order; all of :data:`METRICS` if the setting is missing or empty.
+    :raises ConfigError: The setting is not a list, or contains a name that is not in :data:`METRICS`.
+    """
+    selected = (config.get("analysis") or {}).get("statistical_metrics")
+    if not selected:
+        return METRICS
+    if not isinstance(selected, list):
+        raise ConfigError(f"analysis.statistical_metrics must be a list of metric names, got {selected!r}")
+    unknown = [name for name in selected if name not in METRICS]
+    if unknown:
+        raise ConfigError(f"analysis.statistical_metrics: unknown metric(s) {unknown}; known: {list(METRICS)}")
+    return tuple(name for name in METRICS if name in selected)
+
+
+def format_report(result: TestResult, metrics: Sequence[str] = METRICS) -> str:
+    """
+    Formats a test result as readable text for the console.
+
+    :param result: The analysed test run.
+    :param metrics: Which metrics to show for values and response time, see :data:`METRICS`.
+    :returns: The report, several lines without a trailing newline.
+    """
+    series, timing = result.series, result.series.timing
+    total, ok = len(series.samples), result.values.count
+    # A single measurement has no actual frequency
+    actual = f"{timing.actual_frequency_hz:.2f} Hz actual; " if timing.actual_frequency_hz is not None else ""
+    lines = [
+        f"=== {result.ammeter}: {total} measurements, {ok} ok, {total - ok} failed ({result.success_rate:.0%}) ===",
+        f"Values (A)     {_format_stats(result.values, metrics, lambda v: f'{v:.4g}')}",
+        f"Response time  {_format_stats(result.response_time, metrics, lambda v: f'{v * 1000:.2f} ms')}",
+        f"Timing         {series.config.frequency_hz:g} Hz planned, {actual}"
+        f"lag mean {timing.mean_lag_s * 1000:.1f} ms, max {timing.max_lag_s * 1000:.1f} ms; "
+        f"{timing.late_count} late, schedule shifted by {timing.schedule_shift_s * 1000:.1f} ms",
+    ]
+    if timing.min_interval_s is not None:
+        lines.append(f"               interval between measurements {timing.min_interval_s * 1000:.1f}"
+                     f"-{timing.max_interval_s * 1000:.1f} ms")
+    if series.failed:
+        # The same error is usually repeated many times; show each reason once with its count
+        reasons = Counter(s.measurement.error for s in series.failed).most_common(3)
+        lines.append("Failures       " + "; ".join(f"{count}x {error}" for error, count in reasons))
+    return "\n".join(lines)
+
+
+def _format_stats(stats: ValueStats, metrics: Sequence[str], fmt: Callable[[float], str]) -> str:
+    """
+    :param stats: Metrics to show.
+    :param metrics: Which metrics to show, in this order.
+    :param fmt: Formats one value; not used for ``relative_spread``, which is shown in percent.
+    :returns: One line, or ``"no data"`` if there were no numbers.
+    """
+    if stats.count == 0:
+        return "no data"
+    parts = []
+    for name in metrics:
+        value = getattr(stats, name)
+        if value is None:
+            text = "n/a"
+        elif name == "relative_spread":
+            text = f"{value:.1%}"
+        else:
+            text = fmt(value)
+        parts.append(f"{name} {text}")
+    return "  ".join(parts)

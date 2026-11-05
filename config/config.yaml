@@ -28,7 +28,9 @@ ammeters:
 #    command: "GET_CURRENT"
 
 analysis:
-  statistical_metrics:
+  # Which metrics the report shows; all of them are always computed.
+  # Known: mean, median, stdev, min, max, relative_spread. Empty or missing = all.
+  statistical_metrics: [mean, median, stdev, min, max, relative_spread]
   visualization:
     enabled: true
     plot_types:
