@@ -36,3 +36,7 @@ analysis:
     plot_types:
 
 result_management:
+  # Folder for archived runs, one JSON file per run; relative paths start at the project root.
+  results_dir: results/runs
+  # Whether examples/run_tests.py saves every run to the archive.
+  save_results: true

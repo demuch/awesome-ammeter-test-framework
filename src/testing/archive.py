@@ -12,7 +12,7 @@ from typing import Any, Dict, List, Optional, Tuple
 from src.testing.ammeter import Ammeter, Measurement
 from src.testing.analysis import TestResult, analyze
 from src.testing.sampling import Sample, SampleSeries, SamplingConfig
-from src.utils.config import PROJECT_ROOT
+from src.utils.config import PROJECT_ROOT, ConfigError
 
 # Increase when the file layout changes, so old files can still be recognised
 FORMAT_VERSION = 1
@@ -261,3 +261,25 @@ class ResultArchive:
             return record_from_dict(data)
         except ArchiveError as e:
             raise ArchiveError(f"{path.name}: {e}") from e
+
+
+def archive_settings_from_config(config: Dict) -> Tuple[Path, bool]:
+    """
+    Reads the ``result_management`` section of config.yaml.
+
+    :param config: Configuration as returned by :func:`src.utils.config.load_config`.
+    :returns: Folder for archived runs (relative paths start at the project root; default ``results/runs``)
+        and whether runs are saved (default ``True``).
+    :raises ConfigError: ``results_dir`` is not a non-empty string or ``save_results`` is not true/false.
+    """
+    section = config.get("result_management") or {}
+    if not isinstance(section, dict):
+        raise ConfigError("result_management must be a mapping")
+    results_dir = section.get("results_dir", "results/runs")
+    if not isinstance(results_dir, str) or not results_dir.strip():
+        raise ConfigError(f"result_management.results_dir must be a non-empty path, got {results_dir!r}")
+    save_results = section.get("save_results", True)
+    if not isinstance(save_results, bool):
+        raise ConfigError(f"result_management.save_results must be true or false, got {save_results!r}")
+    # An absolute path stays as it is: PROJECT_ROOT / "/abs/path" is "/abs/path"
+    return PROJECT_ROOT / results_dir, save_results
