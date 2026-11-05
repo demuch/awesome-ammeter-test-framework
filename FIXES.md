@@ -188,3 +188,7 @@ These issues are in the code that the testing framework replaces or wraps; they 
 - `Ammeters/base_ammeter.py`: one client is served at a time; a single `recv(1024)` assumes the whole command arrives
   in one TCP segment.
 - `README.md`: file names do not match the repository (`Ammeters/main.py`, `AmmeterTester.py`, `run_test.py`).
+- Windows: connecting to a port where nothing listens takes about 2 s (Windows retries before reporting the
+  refusal; Linux and macOS report it at once), found by CI. A measurement of an unreachable ammeter therefore
+  takes about 2 s on Windows, and a series of such an ammeter falls behind its schedule; the timing report shows
+  this as late measurements and a shifted schedule. This is operating system behaviour, not changed in code.
