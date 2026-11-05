@@ -12,5 +12,5 @@ venv/
 # OS
 .DS_Store
 
-# Runtime output
-results/logs/
+# Runtime output (logs and archived runs); examples are in sample_results/
+results/
