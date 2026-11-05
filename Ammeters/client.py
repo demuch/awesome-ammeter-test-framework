@@ -20,18 +20,13 @@ def get_current(port: int, command: bytes, timeout: float = 5.0, host: str = 'lo
     """
     Requests one current measurement from an ammeter and returns it.
 
-    Args:
-        port: TCP port of the ammeter.
-        command: Command that requests a measurement, e.g. b'MEASURE_GREENLEE -get_measurement'.
-        timeout: Seconds to wait for connecting and for each chunk of the reply.
-        host: Host name or IP address of the ammeter.
-
-    Returns:
-        The measured current in amperes.
-
-    Raises:
-        AmmeterConnectionError: The ammeter cannot be reached (connection refused, timeout, reset).
-        AmmeterResponseError: The reply is an ERROR reply, empty, not a number, or nan/inf.
+    :param port: TCP port of the ammeter.
+    :param command: Command that requests a measurement, e.g. ``b'MEASURE_GREENLEE -get_measurement'``.
+    :param timeout: Seconds to wait for connecting and for each chunk of the reply.
+    :param host: Host name or IP address of the ammeter.
+    :returns: The measured current in amperes.
+    :raises AmmeterConnectionError: The ammeter cannot be reached (connection refused, timeout, reset).
+    :raises AmmeterResponseError: The reply is an ERROR reply, empty, not a number, or nan/inf.
     """
     try:
         with socket(AF_INET, SOCK_STREAM) as s:
@@ -68,15 +63,12 @@ def get_current(port: int, command: bytes, timeout: float = 5.0, host: str = 'lo
 def request_current_from_ammeter(port: int, command: bytes, timeout: float = 5.0):
     """
     Requests one measurement and prints it. Kept for backwards compatibility;
-    use get_current() when the value is needed.
+    use :func:`get_current` when the value is needed.
 
-    Args:
-        port: TCP port of the ammeter.
-        command: Command that requests a measurement, e.g. b'MEASURE_GREENLEE -get_measurement'.
-        timeout: Seconds to wait for connecting and for each chunk of the reply.
-
-    Raises:
-        AmmeterConnectionError: The ammeter cannot be reached. An invalid reply is printed, not raised.
+    :param port: TCP port of the ammeter.
+    :param command: Command that requests a measurement, e.g. ``b'MEASURE_GREENLEE -get_measurement'``.
+    :param timeout: Seconds to wait for connecting and for each chunk of the reply.
+    :raises AmmeterConnectionError: The ammeter cannot be reached. An invalid reply is printed, not raised.
     """
     try:
         current = get_current(port, command, timeout)

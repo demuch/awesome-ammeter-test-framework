@@ -39,12 +39,9 @@ class AmmeterEmulatorBase(ABC):
         Reads one command from the client and sends the reply: the measured current for the
         expected command, or an ERROR reply for anything else.
 
-        Args:
-            conn: Socket of the accepted client connection.
-
-        Raises:
-            OSError: If the client disconnects while the reply is being sent.
-                start_server() catches it so the server keeps running.
+        :param conn: Socket of the accepted client connection.
+        :raises OSError: If the client disconnects while the reply is being sent.
+            start_server() catches it so the server keeps running.
         """
         data = conn.recv(1024)
         if not data:

@@ -23,9 +23,8 @@ def run_emulator(name: str, port: int):
     Starts one ammeter emulator and serves requests until the program exits.
     If the port cannot be bound, prints a message instead of crashing the thread.
 
-    Args:
-        name: Ammeter name as used in config.yaml, a key of EMULATORS (e.g. "greenlee").
-        port: TCP port the emulator listens on.
+    :param name: Ammeter name as used in config.yaml, a key of EMULATORS (e.g. "greenlee").
+    :param port: TCP port the emulator listens on.
     """
     try:
         EMULATORS[name](port).start_server()
