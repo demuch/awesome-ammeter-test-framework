@@ -5,6 +5,9 @@ from abc import ABC, abstractmethod
 
 NotImplementedErrorMsg = "Subclasses must implement this property."
 
+# Replies that start with this prefix are errors, not measurements
+ERROR_PREFIX = b"ERROR"
+
 class AmmeterEmulatorBase(ABC):
     def __init__(self, port: int):
         self.port = port
@@ -25,11 +28,23 @@ class AmmeterEmulatorBase(ABC):
                 conn, addr = s.accept()
                 with conn:
                     print(f"Connected by {addr}")
-                    data = conn.recv(1024)
-                    if data == self.get_current_command:
-                        # Call the specific measure_current() method defined in subclasses
-                        current = self.measure_current()
-                        conn.sendall(str(current).encode('utf-8'))
+                    # A failure with one client must not stop the server for everyone else
+                    try:
+                        self._handle_request(conn)
+                    except Exception as e:
+                        print(f"{self.__class__.__name__}: request from {addr} failed: {e!r}")
+
+    def _handle_request(self, conn: socket.socket):
+        data = conn.recv(1024)
+        if not data:
+            return  # Client closed the connection without sending a command
+        if data == self.get_current_command:
+            # Call the specific measure_current() method defined in subclasses
+            current = self.measure_current()
+            conn.sendall(str(current).encode('utf-8'))
+        else:
+            print(f"{self.__class__.__name__}: unknown command {data!r}")
+            conn.sendall(ERROR_PREFIX + b": unknown command " + repr(data[:100]).encode('utf-8'))
 
     @property
     @abstractmethod

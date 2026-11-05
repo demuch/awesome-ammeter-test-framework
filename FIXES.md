@@ -78,6 +78,26 @@ system, change it in `config.yaml` or turn off AirPlay Receiver (System Settings
 - `main.py` reports a port that cannot be bound, connection refused, timeout and reset with a clear message per ammeter
   and continues with the remaining ammeters.
 
+## Fix 6: Server swallows unknown commands and dies on client errors
+
+**Symptom 1:** a wrong command produced only `No data received.` on the client. The client could not tell
+"unknown command" from "device hung" or "reply lost", which is why Fix 1 was hard to diagnose.
+
+**Symptom 2 (negative test):** a client that sent a valid command and then aborted the connection (TCP RST) made
+`sendall()` raise `BrokenPipeError`. The exception escaped the `while True` loop and killed the emulator thread;
+every following request got `ConnectionRefusedError` until restart. One misbehaving client took the device down.
+
+**Fix (`base_ammeter.py`):**
+- An unknown command is answered with `ERROR: unknown command <received bytes>` (truncated to 100 bytes) and logged on
+  the server side. Real instruments behave the same way (e.g. SCPI reports "Undefined header").
+- Handling of one request moved to `_handle_request()`; any exception there is logged and the server keeps serving.
+- A connection closed without a command is ignored instead of being treated as an unknown command.
+
+**Fix (`client.py`):** a reply that starts with `ERROR` is reported as an error, not as a current value.
+
+**Verified:** wrong command → explicit error; aborted client → logged, server stays up; empty connection → ignored;
+a valid request afterwards succeeds; `main.py` happy path unchanged.
+
 ## Known issues not fixed yet
 
 These issues are in the code that the testing framework replaces or wraps; they will be addressed there.
@@ -86,7 +106,7 @@ These issues are in the code that the testing framework replaces or wraps; they 
 - `examples/run_tests.py`: calls `run_test()` without the required `ammeter_type` argument (README says not to use it).
 - `src/utils/logger.py`: the log file path is computed but no handler or level is set, so nothing is written to the file.
 - `Ammeters/client.py`: prints the value instead of returning it, so it cannot be used for analysis.
-- `Ammeters/base_ammeter.py`: an unknown command gets no reply (the client cannot tell it from a lost response);
-  one client is served at a time; a single `recv(1024)` assumes the whole command arrives in one TCP segment.
+- `Ammeters/base_ammeter.py`: one client is served at a time; a single `recv(1024)` assumes the whole command arrives
+  in one TCP segment.
 - `README.md`: file names do not match the repository (`Ammeters/main.py`, `AmmeterTester.py`, `run_test.py`).
 - CIRCUTOR: `sum(v * dt)` yields volt-seconds; a real Rogowski coil needs a sensitivity coefficient to get amperes.
