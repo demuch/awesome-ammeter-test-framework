@@ -14,6 +14,10 @@ from src.utils.emulators import start_emulators
 from src.testing.ammeter import Ammeter
 from tests.conftest import EMULATORS, free_port
 
+# The emulators listen on IPv4 only. "localhost" resolves to IPv6 (::1) first on Windows, where the refused
+# IPv6 attempt costs about 2 seconds before IPv4 is tried; the framework's client uses IPv4 directly as well
+LOCAL_IPV4 = "127.0.0.1"
+
 
 # Lowest and highest possible value from the input ranges in README.md:
 # Greenlee 1..10 / 0.1..100; ENTES 0.01..0.1 x 500..2000; CIRCUTOR sum of 10 x 0.1..1.0 x 0.001..0.01
@@ -45,7 +49,7 @@ def _send_raw(port: int, data: bytes) -> bytes:
     :param data: Bytes to send.
     :returns: Everything the server sent before closing the connection.
     """
-    with socket.create_connection(("localhost", port), timeout=2) as s:
+    with socket.create_connection((LOCAL_IPV4, port), timeout=2) as s:
         s.sendall(data)
         reply = b""
         while True:
@@ -76,7 +80,7 @@ def test_unknown_command_gets_error_reply(emulator):
 def test_server_survives_client_that_aborts(emulator):
     """A client that resets the connection before the reply does not stop the server (FIXES.md, Fix 6)."""
     ammeter = emulator("greenlee")
-    s = socket.create_connection(("localhost", ammeter.port))
+    s = socket.create_connection((LOCAL_IPV4, ammeter.port))
     # Linger with timeout 0 makes close() send a reset; Windows uses two shorts, other systems two ints
     linger = struct.pack("HH" if sys.platform == "win32" else "ii", 1, 0)
     s.setsockopt(socket.SOL_SOCKET, socket.SO_LINGER, linger)
@@ -89,7 +93,7 @@ def test_server_survives_client_that_aborts(emulator):
 def test_server_ignores_connection_without_command(emulator):
     """A client that connects and closes without sending anything does not break the server."""
     ammeter = emulator("entes")
-    socket.create_connection(("localhost", ammeter.port)).close()
+    socket.create_connection((LOCAL_IPV4, ammeter.port)).close()
     assert isinstance(get_current(ammeter.port, ammeter.command), float)
 
 
@@ -104,7 +108,7 @@ def test_emulator_restarts_on_port_in_time_wait():
         server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind(("localhost", port))
         server.listen()
-        client = socket.create_connection(("localhost", port))
+        client = socket.create_connection((LOCAL_IPV4, port))
         conn, _ = server.accept()
         conn.close()
         client.close()
