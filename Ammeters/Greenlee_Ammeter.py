@@ -1,5 +1,9 @@
+import logging
+
 from Ammeters.base_ammeter import AmmeterEmulatorBase
 from src.utils.Utils import generate_random_float
+
+logger = logging.getLogger(__name__)
 
 
 class GreenleeAmmeter(AmmeterEmulatorBase):
@@ -12,5 +16,5 @@ class GreenleeAmmeter(AmmeterEmulatorBase):
         voltage = generate_random_float(1.0, 10.0)  # Random voltage (1V - 10V)
         resistance = generate_random_float(0.1, 100.0)  # Random resistance (0.1Ω - 100Ω)
         current = voltage / resistance
-        print(f"Greenlee Ammeter - Voltage: {voltage}V, Resistance: {resistance}Ω, Current: {current}A")
+        logger.debug(f"Greenlee Ammeter - Voltage: {voltage}V, Resistance: {resistance}Ω, Current: {current}A")
         return current

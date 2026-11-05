@@ -153,11 +153,36 @@ with `FileNotFoundError` when started from any other directory.
 
 **Verified:** the framework loads the config when started from `/tmp`; a missing file gives a `ConfigError`.
 
+## Fix 11: `examples/run_tests.py` does not run
+
+**Symptoms:**
+- `python examples/run_tests.py` failed with `ModuleNotFoundError: No module named 'src'`: Python looks for modules
+  in the script's directory (`examples/`), not in the project root.
+- `python -m examples.run_tests` failed with `TypeError: run_test() missing 1 required positional argument`.
+
+Once these were fixed, three more problems would have followed: the emulators were never started, the ammeter list
+was hardcoded instead of taken from the config, and the results were never printed.
+
+**Fix:** the project root is added to `sys.path` at the top of the script; the script starts the emulators,
+runs `run_test()` for every ammeter in `config.yaml` and prints a report for each. The structure of the original
+script (`main()`, one loop to run, one loop to print) is kept.
+
+**Verified:** works from the project root and from another directory; prints three reports.
+
+## Other changes to the provided code
+
+These are not bug fixes, but they change code that came with the assignment:
+
+- **Emulators log instead of printing** (`base_ammeter.py`, `*_Ammeter.py`). Each request printed 2-3 lines, which
+  buried the test report in noise. Per-request details are now `DEBUG`, server start is `INFO` (both hidden by
+  default), unknown commands and failed requests are `WARNING` (always shown). Message texts are unchanged.
+- **`start_server()` takes an optional `ready` event**, set right after `listen()`, so callers wait until the
+  emulator accepts connections instead of sleeping a fixed 5 seconds. Calling it without arguments works as before.
+
 ## Known issues not fixed yet
 
 These issues are in the code that the testing framework replaces or wraps; they will be addressed there.
 
-- `examples/run_tests.py`: calls `run_test()` without the required `ammeter_type` argument (README says not to use it).
 - `Ammeters/base_ammeter.py`: one client is served at a time; a single `recv(1024)` assumes the whole command arrives
   in one TCP segment.
 - `README.md`: file names do not match the repository (`Ammeters/main.py`, `AmmeterTester.py`, `run_test.py`).

@@ -1,3 +1,4 @@
+import logging
 import socket
 import threading
 import time
@@ -9,6 +10,8 @@ NotImplementedErrorMsg = "Subclasses must implement this property."
 
 # Replies that start with this prefix are errors, not measurements
 ERROR_PREFIX = b"ERROR"
+
+logger = logging.getLogger(__name__)
 
 class AmmeterEmulatorBase(ABC):
     def __init__(self, port: int):
@@ -28,18 +31,18 @@ class AmmeterEmulatorBase(ABC):
             s.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
             s.bind(('localhost', self.port))
             s.listen()
-            print(f"{self.__class__.__name__} is running on port {self.port}")
+            logger.info(f"{self.__class__.__name__} is running on port {self.port}")
             if ready is not None:
                 ready.set()
             while True:
                 conn, addr = s.accept()
                 with conn:
-                    print(f"Connected by {addr}")
+                    logger.debug(f"Connected by {addr}")
                     # A failure with one client must not stop the server for everyone else
                     try:
                         self._handle_request(conn)
                     except Exception as e:
-                        print(f"{self.__class__.__name__}: request from {addr} failed: {e!r}")
+                        logger.warning(f"{self.__class__.__name__}: request from {addr} failed: {e!r}")
 
     def _handle_request(self, conn: socket.socket):
         """
@@ -58,7 +61,7 @@ class AmmeterEmulatorBase(ABC):
             current = self.measure_current()
             conn.sendall(str(current).encode('utf-8'))
         else:
-            print(f"{self.__class__.__name__}: unknown command {data!r}")
+            logger.warning(f"{self.__class__.__name__}: unknown command {data!r}")
             conn.sendall(ERROR_PREFIX + b": unknown command " + repr(data[:100]).encode('utf-8'))
 
     @property
