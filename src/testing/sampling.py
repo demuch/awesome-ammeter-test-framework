@@ -1,7 +1,10 @@
 import math
+import statistics
+import time
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Callable, Dict, Optional, Tuple
 
+from src.testing.ammeter import Ammeter, Measurement
 from src.utils.config import ConfigError
 
 # Keys of the testing.sampling section in config.yaml
@@ -112,3 +115,137 @@ def _check_positive_number(key: str, value: Any) -> None:
     # YAML reads '.inf' and '.nan' as numbers, so they are rejected explicitly
     if isinstance(value, bool) or not isinstance(value, (int, float)) or not math.isfinite(value) or value <= 0:
         raise ConfigError(f"Sampling: {key} must be a finite number greater than 0, got {value!r}")
+
+
+@dataclass(frozen=True)
+class Sample:
+    """
+    One measurement of a series together with its timing.
+
+    :ivar index: Position in the series, starting at 0.
+    :ivar scheduled_s: When the measurement should have started, in seconds after the series start.
+    :ivar started_s: When it actually started, in seconds after the series start.
+    :ivar late: ``True`` if the scheduled moment had already passed when the measurement could start,
+        because the previous one took longer than the interval. The rest of the schedule is then
+        shifted by the delay.
+    :ivar measurement: The measurement itself.
+    """
+    index: int
+    scheduled_s: float
+    started_s: float
+    late: bool
+    measurement: Measurement
+
+    @property
+    def lag_s(self) -> float:
+        """
+        :returns: How much later than scheduled the measurement started, in seconds.
+        """
+        return self.started_s - self.scheduled_s
+
+
+@dataclass(frozen=True)
+class TimingStats:
+    """
+    How closely a series followed its schedule.
+
+    :ivar actual_frequency_hz: Measured rate between the first and the last start, or ``None`` for one measurement.
+    :ivar mean_lag_s: Average delay of a start against its scheduled moment, in seconds.
+    :ivar max_lag_s: Largest delay of a start against its scheduled moment, in seconds.
+    :ivar late_count: Number of measurements that started after their scheduled moment had passed.
+    :ivar min_interval_s: Shortest time between two consecutive starts, or ``None`` for one measurement.
+    :ivar max_interval_s: Longest time between two consecutive starts, or ``None`` for one measurement.
+        Together with ``min_interval_s`` this shows local problems that the average frequency hides.
+    :ivar schedule_shift_s: How much the schedule was shifted in total because of late measurements.
+    """
+    actual_frequency_hz: Optional[float]
+    mean_lag_s: float
+    max_lag_s: float
+    late_count: int
+    min_interval_s: Optional[float]
+    max_interval_s: Optional[float]
+    schedule_shift_s: float
+
+
+@dataclass(frozen=True)
+class SampleSeries:
+    """
+    Result of one sampling run on one ammeter.
+
+    :ivar ammeter: Name of the ammeter.
+    :ivar config: Sampling configuration that was used.
+    :ivar started_at: Unix time when the series started.
+    :ivar samples: All measurements in order; a tuple, so the frozen series cannot be changed.
+    :ivar schedule_shift_s: How much the schedule was shifted in total because of late measurements.
+    """
+    ammeter: str
+    config: SamplingConfig
+    started_at: float
+    samples: Tuple[Sample, ...]
+    schedule_shift_s: float
+
+    @property
+    def values(self) -> Tuple[float, ...]:
+        """
+        :returns: Values of the successful measurements, in order.
+        """
+        return tuple(s.measurement.value for s in self.samples if s.measurement.ok)
+
+    @property
+    def failed(self) -> Tuple[Sample, ...]:
+        """
+        :returns: Samples whose measurement failed; the reason is in ``measurement.error``.
+        """
+        return tuple(s for s in self.samples if not s.measurement.ok)
+
+    @property
+    def timing(self) -> TimingStats:
+        """
+        :returns: How closely the series followed its schedule.
+        """
+        lags = [s.lag_s for s in self.samples]
+        starts = [s.started_s for s in self.samples]
+        intervals = [b - a for a, b in zip(starts, starts[1:])]
+        actual_frequency_hz = (len(starts) - 1) / (starts[-1] - starts[0]) if starts[-1] > starts[0] else None
+        return TimingStats(actual_frequency_hz, statistics.mean(lags), max(lags),
+                           sum(s.late for s in self.samples),
+                           min(intervals) if intervals else None,
+                           max(intervals) if intervals else None,
+                           self.schedule_shift_s)
+
+
+def sample(ammeter: Ammeter, config: SamplingConfig,
+           clock: Callable[[], float] = time.perf_counter,
+           sleep: Callable[[float], None] = time.sleep) -> SampleSeries:
+    """
+    Takes ``config.count`` measurements, starting measurement ``i`` at ``i / config.frequency_hz``
+    seconds after the start. Waiting until a fixed moment instead of sleeping a fixed interval keeps
+    small delays from adding up. If a measurement takes longer than the interval, the next one starts
+    immediately, is marked as late, and the rest of the schedule is shifted by the delay: no measurement
+    is skipped and no burst of catch-up measurements is sent to a slow ammeter. Failed measurements
+    are kept in the series and do not stop it.
+
+    :param ammeter: Ammeter to measure.
+    :param config: How many measurements to take and how fast.
+    :param clock: Monotonic clock in seconds; replaceable in tests.
+    :param sleep: Function that waits the given number of seconds; replaceable in tests.
+    :returns: All measurements with their timing.
+    """
+    started_at = time.time()
+    start = clock()
+    samples = []
+    shift_s = 0.0  # How much the schedule was moved because of late measurements
+    for i in range(config.count):
+        # Computed from the index, not by adding the interval repeatedly, so rounding errors do not add up
+        scheduled_s = i / config.frequency_hz + shift_s
+        wait_s = scheduled_s - (clock() - start)
+        late = i > 0 and wait_s < 0
+        if late:
+            # Only a missed moment shifts the schedule; small wake-up delays of sleep() do not,
+            # otherwise they would add up again
+            shift_s -= wait_s
+        elif wait_s > 0:
+            sleep(wait_s)
+        started_s = clock() - start
+        samples.append(Sample(i, scheduled_s, started_s, late, ammeter.measure()))
+    return SampleSeries(ammeter.name, config, started_at, tuple(samples), shift_s)
