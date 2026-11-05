@@ -1,0 +1,320 @@
+{
+  "format_version": 1,
+  "run_id": "20261105-185438-entes-12eba9e7",
+  "started_at": "2026-11-05T18:54:38.448203+00:00",
+  "ammeter": {
+    "name": "entes",
+    "port": 5001,
+    "command": "MEASURE_ENTES -get_data",
+    "host": "localhost",
+    "timeout": 5.0,
+    "emulator": "Ammeters.Entes_Ammeter.EntesAmmeter"
+  },
+  "environment": {
+    "python": "3.9.6",
+    "platform": "macOS-15.7.7-arm64-arm-64bit",
+    "code_version": "6ca00d1"
+  },
+  "summary": {
+    "success_rate": 1.0,
+    "values": {
+      "count": 20,
+      "mean": 53.90433312804072,
+      "median": 40.057118958194394,
+      "stdev": 43.32979408720522,
+      "min": 8.913514741016188,
+      "max": 148.49355658222018,
+      "relative_spread": 0.8038276623195124
+    },
+    "response_time": {
+      "count": 20,
+      "mean": 0.0007146208000000098,
+      "median": 0.0006596670000000859,
+      "stdev": 0.00021793574973770155,
+      "min": 0.0004595000000000571,
+      "max": 0.0013299159999999866,
+      "relative_spread": 0.3049669835214684
+    },
+    "timing": {
+      "actual_frequency_hz": 9.986047783107246,
+      "mean_lag_s": 0.0025989253999999613,
+      "max_lag_s": 0.005042334000000093,
+      "late_count": 0,
+      "min_interval_s": 0.09554983299999975,
+      "max_interval_s": 0.10443512500000018,
+      "schedule_shift_s": 0.0
+    }
+  },
+  "series": {
+    "ammeter": "entes",
+    "config": {
+      "count": 20,
+      "duration_s": 2.0,
+      "frequency_hz": 10.0
+    },
+    "started_at": 1793904878.448203,
+    "samples": [
+      {
+        "index": 0,
+        "scheduled_s": 0.0,
+        "started_s": 1.8340000000893752e-06,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904878.448205,
+          "value": 14.177157301758761,
+          "error": null,
+          "duration_s": 0.0004595000000000571
+        }
+      },
+      {
+        "index": 1,
+        "scheduled_s": 0.1,
+        "started_s": 0.10318149999999982,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904878.551405,
+          "value": 126.16964889146396,
+          "error": null,
+          "duration_s": 0.0009110829999996461
+        }
+      },
+      {
+        "index": 2,
+        "scheduled_s": 0.2,
+        "started_s": 0.20192245899999994,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904878.6501381,
+          "value": 39.17645597231316,
+          "error": null,
+          "duration_s": 0.0006452080000003413
+        }
+      },
+      {
+        "index": 3,
+        "scheduled_s": 0.3,
+        "started_s": 0.3026512920000002,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904878.750876,
+          "value": 147.70182341703082,
+          "error": null,
+          "duration_s": 0.000757291999999854
+        }
+      },
+      {
+        "index": 4,
+        "scheduled_s": 0.4,
+        "started_s": 0.4003491669999999,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904878.848565,
+          "value": 74.23895642534967,
+          "error": null,
+          "duration_s": 0.0007481669999997997
+        }
+      },
+      {
+        "index": 5,
+        "scheduled_s": 0.5,
+        "started_s": 0.501099,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904878.949312,
+          "value": 32.24613279696661,
+          "error": null,
+          "duration_s": 0.0006009580000001513
+        }
+      },
+      {
+        "index": 6,
+        "scheduled_s": 0.6,
+        "started_s": 0.6020423749999999,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904879.0502558,
+          "value": 148.49355658222018,
+          "error": null,
+          "duration_s": 0.0013299159999999866
+        }
+      },
+      {
+        "index": 7,
+        "scheduled_s": 0.7,
+        "started_s": 0.7050184169999998,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904879.153237,
+          "value": 26.39944958129427,
+          "error": null,
+          "duration_s": 0.0005760420000000543
+        }
+      },
+      {
+        "index": 8,
+        "scheduled_s": 0.8,
+        "started_s": 0.8033893339999998,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904879.251609,
+          "value": 40.937781944075624,
+          "error": null,
+          "duration_s": 0.0006575419999998999
+        }
+      },
+      {
+        "index": 9,
+        "scheduled_s": 0.9,
+        "started_s": 0.9050216249999998,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904879.353239,
+          "value": 10.767965681672836,
+          "error": null,
+          "duration_s": 0.0004687080000000954
+        }
+      },
+      {
+        "index": 10,
+        "scheduled_s": 1.0,
+        "started_s": 1.0050100839999998,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904879.453226,
+          "value": 16.38704198087179,
+          "error": null,
+          "duration_s": 0.0005188330000001073
+        }
+      },
+      {
+        "index": 11,
+        "scheduled_s": 1.1,
+        "started_s": 1.1014992920000002,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904879.5497248,
+          "value": 45.148419146893914,
+          "error": null,
+          "duration_s": 0.0008185000000002773
+        }
+      },
+      {
+        "index": 12,
+        "scheduled_s": 1.2,
+        "started_s": 1.200087167,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904879.6483068,
+          "value": 85.89259389492688,
+          "error": null,
+          "duration_s": 0.0006093339999999614
+        }
+      },
+      {
+        "index": 13,
+        "scheduled_s": 1.3,
+        "started_s": 1.3010720839999999,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904879.7493272,
+          "value": 74.1216566571456,
+          "error": null,
+          "duration_s": 0.0007283330000000809
+        }
+      },
+      {
+        "index": 14,
+        "scheduled_s": 1.4,
+        "started_s": 1.401788834,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904879.8500102,
+          "value": 28.031440082051205,
+          "error": null,
+          "duration_s": 0.0006150830000000163
+        }
+      },
+      {
+        "index": 15,
+        "scheduled_s": 1.5,
+        "started_s": 1.505042334,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904879.953266,
+          "value": 24.12362305113467,
+          "error": null,
+          "duration_s": 0.0005135839999996783
+        }
+      },
+      {
+        "index": 16,
+        "scheduled_s": 1.6,
+        "started_s": 1.6005921669999998,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904880.0488188,
+          "value": 54.26914346194853,
+          "error": null,
+          "duration_s": 0.0011329579999999062
+        }
+      },
+      {
+        "index": 17,
+        "scheduled_s": 1.7,
+        "started_s": 1.705027292,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904880.153256,
+          "value": 26.618569731009817,
+          "error": null,
+          "duration_s": 0.0008745000000001113
+        }
+      },
+      {
+        "index": 18,
+        "scheduled_s": 1.8,
+        "started_s": 1.8045257920000002,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904880.2527769,
+          "value": 8.913514741016188,
+          "error": null,
+          "duration_s": 0.0006650829999998997
+        }
+      },
+      {
+        "index": 19,
+        "scheduled_s": 1.9,
+        "started_s": 1.9026564590000001,
+        "late": false,
+        "measurement": {
+          "ammeter": "entes",
+          "timestamp": 1793904880.3508852,
+          "value": 54.271731219669945,
+          "error": null,
+          "duration_s": 0.0006617920000002719
+        }
+      }
+    ],
+    "schedule_shift_s": 0.0
+  }
+}
