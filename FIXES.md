@@ -6,18 +6,16 @@ Each fix is a separate commit, so `git log` shows the history step by step.
 ## Environment
 
 - Python 3.9.6 (macOS), virtual environment in `.venv`
-- Installed with `pip install -r requirements.txt` (no extra libraries were added):
-
-| Library | Installed version |
-|---|---|
-| numpy | 2.0.2 |
-| scipy | 1.13.1 |
-| matplotlib | 3.9.4 |
-| seaborn | 0.13.2 |
-| PyYAML | 6.0.3 |
-| pandas | 2.3.3 |
+- Installed library: **PyYAML 6.0.3** (`pip install -r requirements.txt`)
 
 Before installation `import yaml` failed with `ModuleNotFoundError`, so the config loader could not run.
+
+**`requirements.txt` was reduced to PyYAML only.** The original file listed numpy, scipy, matplotlib, seaborn, PyYAML
+and pandas, but a scan of all imports showed that the code uses only `yaml`; everything else is the standard library.
+The spec asks to minimize external dependencies, so the unused packages were removed. `main.py` was verified in a fresh
+virtual environment with PyYAML as the only installed package. Statistics, run IDs and result storage will use the
+standard library (`statistics`, `uuid`, `json`); matplotlib will be added later as an optional dependency for
+visualization only.
 
 ## Fix 1: Truncated commands in `main.py`
 
