@@ -32,13 +32,6 @@ class SamplingConfig:
     duration_s: float
     frequency_hz: float
 
-    @property
-    def interval_s(self) -> float:
-        """
-        :returns: Seconds between the starts of two consecutive measurements.
-        """
-        return 1 / self.frequency_hz
-
     @classmethod
     def from_values(cls, count: Optional[int] = None, duration_s: Optional[float] = None,
                     frequency_hz: Optional[float] = None) -> "SamplingConfig":
