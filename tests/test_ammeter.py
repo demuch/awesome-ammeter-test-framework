@@ -31,9 +31,12 @@ def test_measure_returns_failed_measurement_instead_of_raising(fake_server, port
     assert message in m.error
 
 
-def test_measure_does_not_hide_framework_errors():
+@pytest.mark.integration
+def test_measure_does_not_hide_framework_errors(fake_server):
     """Only ammeter errors become failed measurements; a bug in the framework still raises."""
-    broken = Ammeter("greenlee", 5000, "CMD")  # str instead of bytes: a programming error, not an ammeter failure
+    # A listening server is needed: otherwise the connection is refused (an ammeter error) before the bug is reached
+    server = fake_server(chunks=[b"1.0"])
+    broken = Ammeter("greenlee", server.port, "CMD")  # str instead of bytes: a programming error, not an ammeter failure
     with pytest.raises(TypeError):
         broken.measure()
 

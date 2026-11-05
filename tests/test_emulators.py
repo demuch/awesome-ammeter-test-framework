@@ -97,8 +97,11 @@ def test_server_ignores_connection_without_command(emulator):
 def test_emulator_restarts_on_port_in_time_wait():
     """An emulator can start on a port that still has connections in TIME_WAIT (FIXES.md, Fix 3)."""
     port = free_port()
-    # A connection closed by the server side leaves the server's port in TIME_WAIT
+    # A connection closed by the server side leaves the server's port in TIME_WAIT. The server stands for
+    # a previous run of an emulator, so it uses SO_REUSEADDR as well: Linux lets a port in TIME_WAIT be
+    # reused only if both the old and the new socket set it
     with socket.socket() as server:
+        server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
         server.bind(("localhost", port))
         server.listen()
         client = socket.create_connection(("localhost", port))
