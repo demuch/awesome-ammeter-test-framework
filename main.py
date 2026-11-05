@@ -1,34 +1,45 @@
 import threading
 import time
+from pathlib import Path
 
 from Ammeters.Circutor_Ammeter import CircutorAmmeter
 from Ammeters.Entes_Ammeter import EntesAmmeter
 from Ammeters.Greenlee_Ammeter import GreenleeAmmeter
 from Ammeters.client import request_current_from_ammeter
+from src.utils.config import load_config
+
+CONFIG_PATH = Path(__file__).parent / "config" / "config.yaml"
+
+# Maps the ammeter names used in config.yaml to their emulator classes
+EMULATORS = {
+    "greenlee": GreenleeAmmeter,
+    "entes": EntesAmmeter,
+    "circutor": CircutorAmmeter,
+}
 
 
-def run_greenlee_emulator():
-    greenlee = GreenleeAmmeter(5001)
-    greenlee.start_server()
+def run_emulator(name: str, port: int):
+    try:
+        EMULATORS[name](port).start_server()
+    except OSError as e:
+        print(f"[{name}] Cannot start emulator on port {port}: {e}. "
+              f"Free the port or change it in {CONFIG_PATH.name}.")
 
-def run_entes_emulator():
-    entes = EntesAmmeter(5002)
-    entes.start_server()
-
-def run_circutor_emulator():
-    circutor = CircutorAmmeter(5003)
-    circutor.start_server()
 
 if __name__ == "__main__":
+    ammeters = load_config(CONFIG_PATH)["ammeters"]
+
     # Start each ammeter in a separate thread
-    threading.Thread(target=run_greenlee_emulator, daemon=True).start()
-    threading.Thread(target=run_entes_emulator, daemon=True).start()
-    threading.Thread(target=run_circutor_emulator, daemon=True).start()
+    for name, settings in ammeters.items():
+        threading.Thread(target=run_emulator, args=(name, settings["port"]), daemon=True).start()
 
-    # Wait for the servers to start, if you have problem restarting the servers between runs try increasing sleep time.
+    # Wait for the servers to start
     time.sleep(5)
-    request_current_from_ammeter(5001, b'MEASURE_GREENLEE -get_measurement')  # Request from Greenlee Ammeter
-    request_current_from_ammeter(5002, b'MEASURE_ENTES -get_data')  # Request from ENTES Ammeter
-    request_current_from_ammeter(5003, b'MEASURE_CIRCUTOR -get_measurement')  # Request from CIRCUTOR Ammeter
 
-    pass
+    for name, settings in ammeters.items():
+        try:
+            request_current_from_ammeter(settings["port"], settings["command"].encode("utf-8"))
+        except ConnectionRefusedError:
+            print(f"[{name}] No emulator is listening on port {settings['port']}.")
+        except OSError as e:  # timeout, connection reset, etc.
+            print(f"[{name}] Request to port {settings['port']} failed: {e!r}")
