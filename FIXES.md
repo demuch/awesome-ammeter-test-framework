@@ -98,14 +98,56 @@ every following request got `ConnectionRefusedError` until restart. One misbehav
 **Verified:** wrong command → explicit error; aborted client → logged, server stays up; empty connection → ignored;
 a valid request afterwards succeeds; `main.py` happy path unchanged.
 
+## Fix 7: `Dict` used without import in `test_framework.py`
+
+**Symptom:** `import src.testing.test_framework` failed with `NameError: name 'Dict' is not defined`.
+
+**Root cause:** the return annotation `-> Dict` is evaluated when the function is defined, i.e. when the module is
+imported. `Dict` comes from the `typing` module, which was not imported, so the whole module was unusable.
+
+**Fix:** `from typing import Dict`.
+
+## Fix 8: `TestLogger` writes nothing
+
+**Symptom:** after `info()`, `debug()` and `error()` the log directory stayed empty; only the error message reached
+the console, without a timestamp.
+
+**Root cause:** `_setup_logger()` computed the log file path but never used it: no handler and no level were set, so
+Python fell back to its default behaviour (WARNING and above to the console only).
+
+**Fix:**
+- File handler (DEBUG and above) with the computed file name, console handler (INFO and above), timestamped format.
+- Handlers left by a previous `TestLogger` with the same name are removed: `logging.getLogger()` returns the same object
+  for the same name, so otherwise every line would be written twice.
+- `propagate = False`, so messages are not printed again by the root logger.
+- The log directory is resolved from the project root, not from the current directory.
+
+**Verified:** run from another directory; console shows INFO/ERROR with timestamps, the file contains all levels,
+a second logger with the same name does not duplicate lines.
+
+## Fix 9: Client prints the value instead of returning it
+
+**Problem:** `request_current_from_ammeter()` printed the measurement and returned nothing, and also only printed errors,
+so measurements could not be collected or analysed. It also read the reply with a single `recv(1024)`, while TCP may
+deliver it in several chunks.
+
+**Fix:** new `get_current()` in `Ammeters/client.py`:
+- returns the measurement as `float`;
+- reads the reply until the server closes the connection;
+- raises `AmmeterConnectionError` (refused, timeout, reset) or `AmmeterResponseError` (`ERROR` reply, empty reply,
+  not a number, `nan`/`inf`); both inherit from `AmmeterError`, so callers can catch all of them at once.
+
+`request_current_from_ammeter()` is kept for backwards compatibility and now uses `get_current()`.
+`main.py` uses `get_current()` directly.
+
+**Verified:** valid command, wrong command, closed port, silent server (timeout), non-numeric reply, `nan` reply,
+empty reply and a reply split into two TCP chunks all behave as expected.
+
 ## Known issues not fixed yet
 
 These issues are in the code that the testing framework replaces or wraps; they will be addressed there.
 
-- `src/testing/test_framework.py`: `Dict` is used without being imported, so the module fails to import with `NameError`.
 - `examples/run_tests.py`: calls `run_test()` without the required `ammeter_type` argument (README says not to use it).
-- `src/utils/logger.py`: the log file path is computed but no handler or level is set, so nothing is written to the file.
-- `Ammeters/client.py`: prints the value instead of returning it, so it cannot be used for analysis.
 - `Ammeters/base_ammeter.py`: one client is served at a time; a single `recv(1024)` assumes the whole command arrives
   in one TCP segment.
 - `README.md`: file names do not match the repository (`Ammeters/main.py`, `AmmeterTester.py`, `run_test.py`).

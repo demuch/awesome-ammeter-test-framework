@@ -5,7 +5,7 @@ from pathlib import Path
 from Ammeters.Circutor_Ammeter import CircutorAmmeter
 from Ammeters.Entes_Ammeter import EntesAmmeter
 from Ammeters.Greenlee_Ammeter import GreenleeAmmeter
-from Ammeters.client import request_current_from_ammeter
+from Ammeters.client import AmmeterError, get_current
 from src.utils.config import load_config
 
 CONFIG_PATH = Path(__file__).parent / "config" / "config.yaml"
@@ -38,8 +38,8 @@ if __name__ == "__main__":
 
     for name, settings in ammeters.items():
         try:
-            request_current_from_ammeter(settings["port"], settings["command"].encode("utf-8"))
-        except ConnectionRefusedError:
-            print(f"[{name}] No emulator is listening on port {settings['port']}.")
-        except OSError as e:  # timeout, connection reset, etc.
-            print(f"[{name}] Request to port {settings['port']} failed: {e!r}")
+            current = get_current(settings["port"], settings["command"].encode("utf-8"))
+        except AmmeterError as e:  # unreachable ammeter or invalid reply
+            print(f"[{name}] Measurement failed: {e}")
+        else:
+            print(f"[{name}] Received current measurement from port {settings['port']}: {current} A")
