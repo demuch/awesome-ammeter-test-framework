@@ -176,6 +176,8 @@ These are not bug fixes, but they change code that came with the assignment:
 - **Emulators log instead of printing** (`base_ammeter.py`, `*_Ammeter.py`). Each request printed 2-3 lines, which
   buried the test report in noise. Per-request details are now `DEBUG`, server start is `INFO` (both hidden by
   default), unknown commands and failed requests are `WARNING` (always shown). Message texts are unchanged.
+- **`TestLogger` has `__test__ = False`.** pytest collects every class whose name starts with `Test` as a test
+  class; importing `TestLogger` in a test made pytest try to collect it and fail with a collection warning.
 - **`start_server()` takes an optional `ready` event**, set right after `listen()`, so callers wait until the
   emulator accepts connections instead of sleeping a fixed 5 seconds. Calling it without arguments works as before.
 

@@ -103,3 +103,32 @@ def test_usage_errors_exit_with_2(runs, args):
     with pytest.raises(SystemExit) as exit_info:
         run_cli(directory, *args)
     assert exit_info.value.code == 2
+
+
+def test_list_warns_about_unreadable_file(runs, capsys):
+    """A broken file is reported on stderr and does not hide the other runs."""
+    directory, records = runs
+    (directory / "broken.json").write_text("{")
+    assert run_cli(directory, "list") == 0
+    captured = capsys.readouterr()
+    assert "Warning: skipped broken.json" in captured.err
+    assert len(captured.out.splitlines()) == 1 + len(records)
+
+
+def test_list_of_empty_archive(tmp_path, capsys):
+    """An archive folder without runs says so instead of printing an empty table."""
+    (tmp_path / "empty").mkdir()
+    assert main(["--dir", str(tmp_path / "empty"), "list"]) == 0
+    assert "No runs in" in capsys.readouterr().out
+
+
+def test_compare_with_run_without_values_shows_n_a(tmp_path, clock, capsys):
+    """Metrics that do not exist for a run (all measurements failed) are shown as n/a, also in the change."""
+    archive = ResultArchive(tmp_path / "runs")
+    ok = make_record(clock, "greenlee", started_at=1_700_000_000)
+    failed = make_record(clock, "greenlee", started_at=1_700_000_100, errors=[0, 1, 2, 3, 4])
+    archive.save(ok)
+    archive.save(failed)
+    main(["--dir", str(archive.directory), "compare", ok.run_id, failed.run_id])
+    mean_line = next(line for line in capsys.readouterr().out.splitlines() if line.startswith("mean"))
+    assert mean_line.split()[-2:] == ["n/a", "n/a"]

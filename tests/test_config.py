@@ -1,8 +1,10 @@
 """Tests of loading config.yaml, creating ammeters from it and starting emulators."""
 import socket
+import threading
 
 import pytest
 
+from Ammeters.base_ammeter import AmmeterEmulatorBase
 from Ammeters.Greenlee_Ammeter import GreenleeAmmeter
 from src.testing.ammeter import Ammeter, load_ammeters
 from src.utils.config import DEFAULT_CONFIG_PATH, ConfigError, load_config
@@ -134,3 +136,30 @@ def test_real_device_without_emulator_is_skipped():
     start_emulators({"real": Ammeter("real", port, b"X")})
     with socket.socket() as s:
         assert s.connect_ex(("localhost", port)) != 0
+
+
+class NeverReadyEmulator(AmmeterEmulatorBase):
+    """Emulator that hangs before accepting connections, to test the readiness timeout."""
+    get_current_command = b"X"
+
+    def measure_current(self) -> float:
+        """
+        :returns: Never called.
+        """
+        return 0.0
+
+    def start_server(self, ready=None):
+        """
+        Never sets ``ready``.
+
+        :param ready: Ignored.
+        """
+        threading.Event().wait(10)
+
+
+@pytest.mark.integration
+def test_emulator_that_never_becomes_ready_is_reported():
+    """An emulator that does not accept connections in time gives EmulatorStartError instead of hanging."""
+    ammeter = Ammeter("slow", free_port(), b"X", emulator="tests.test_config.NeverReadyEmulator")
+    with pytest.raises(EmulatorStartError, match="'slow' on port .*: not ready after 0.2 s"):
+        start_emulators({"slow": ammeter}, timeout=0.2)

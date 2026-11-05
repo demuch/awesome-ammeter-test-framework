@@ -8,6 +8,8 @@ LOG_FORMAT = "%(asctime)s [%(levelname)s] %(name)s: %(message)s"
 
 
 class TestLogger:
+    __test__ = False  # Not a test class, although the name starts with "Test" (stops pytest from collecting it)
+
     def __init__(self, test_name: str):
         self._test_name = test_name
         self.logger = self._setup_logger()
