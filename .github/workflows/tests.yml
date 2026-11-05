@@ -18,6 +18,14 @@ jobs:
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
         python-version: ["3.9", "3.14"]
+        # Python 3.9 reached end of life in October 2025 and is not built for the newest Ubuntu image;
+        # it is kept (the project was developed on 3.9) on the previous Ubuntu release
+        exclude:
+          - os: ubuntu-latest
+            python-version: "3.9"
+        include:
+          - os: ubuntu-24.04
+            python-version: "3.9"
     steps:
       - uses: actions/checkout@v7
 
