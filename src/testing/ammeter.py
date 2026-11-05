@@ -7,6 +7,8 @@ from src.utils.config import ConfigError
 
 DEFAULT_HOST = 'localhost'
 DEFAULT_TIMEOUT_S = 5.0
+# Emulators always listen on the local machine
+LOCAL_HOSTS = ('localhost', '127.0.0.1')
 
 
 @dataclass(frozen=True)
@@ -44,12 +46,15 @@ class Ammeter:
     :ivar command: Command that requests a measurement.
     :ivar host: Host name or IP address of the ammeter.
     :ivar timeout: Seconds to wait for connecting and for each chunk of the reply.
+    :ivar emulator: Import path of the emulator class, e.g. ``"Ammeters.Greenlee_Ammeter.GreenleeAmmeter"``,
+        or ``None`` for a real device that is not emulated.
     """
     name: str
     port: int
     command: bytes
     host: str = DEFAULT_HOST
     timeout: float = DEFAULT_TIMEOUT_S
+    emulator: Optional[str] = None
 
     def measure(self) -> Measurement:
         """
@@ -100,7 +105,8 @@ def _ammeter_from_settings(name: str, settings: Any) -> Ammeter:
     Validates the settings of one ammeter and creates it.
 
     :param name: Ammeter name, the key in the ``ammeters`` section.
-    :param settings: Value of that key: a mapping with ``port``, ``command`` and optionally ``host`` and ``timeout``.
+    :param settings: Value of that key: a mapping with ``port``, ``command`` and optionally ``host``, ``timeout``
+        and ``emulator``.
     :returns: The ammeter.
     :raises ConfigError: A required setting is missing or a setting has an invalid value.
     """
@@ -127,4 +133,14 @@ def _ammeter_from_settings(name: str, settings: Any) -> Ammeter:
     if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or timeout <= 0:
         raise ConfigError(f"Ammeter '{name}': 'timeout' must be a positive number of seconds, got {timeout!r}")
 
-    return Ammeter(name, port, command.encode('utf-8'), host, float(timeout))
+    emulator = settings.get("emulator")
+    if emulator is not None:
+        module_name, _, class_name = str(emulator).rpartition(".")
+        if not isinstance(emulator, str) or not module_name or not class_name:
+            raise ConfigError(f"Ammeter '{name}': 'emulator' must be an import path like "
+                              f"'package.module.ClassName', got {emulator!r}")
+        if host not in LOCAL_HOSTS:
+            raise ConfigError(f"Ammeter '{name}': an emulator runs on this machine, "
+                              f"but 'host' is {host!r}; remove 'emulator' or 'host'")
+
+    return Ammeter(name, port, command.encode('utf-8'), host, float(timeout), emulator)
