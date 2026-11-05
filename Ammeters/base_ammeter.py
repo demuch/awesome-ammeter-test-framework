@@ -35,6 +35,17 @@ class AmmeterEmulatorBase(ABC):
                         print(f"{self.__class__.__name__}: request from {addr} failed: {e!r}")
 
     def _handle_request(self, conn: socket.socket):
+        """
+        Reads one command from the client and sends the reply: the measured current for the
+        expected command, or an ERROR reply for anything else.
+
+        Args:
+            conn: Socket of the accepted client connection.
+
+        Raises:
+            OSError: If the client disconnects while the reply is being sent.
+                start_server() catches it so the server keeps running.
+        """
         data = conn.recv(1024)
         if not data:
             return  # Client closed the connection without sending a command
