@@ -143,6 +143,16 @@ deliver it in several chunks.
 **Verified:** valid command, wrong command, closed port, silent server (timeout), non-numeric reply, `nan` reply,
 empty reply and a reply split into two TCP chunks all behave as expected.
 
+## Fix 10: Default config path depends on the current directory
+
+**Symptom:** `AmmeterTestFramework()` looked for `"config/config.yaml"` relative to the current directory, so it failed
+with `FileNotFoundError` when started from any other directory.
+
+**Fix:** the default path is resolved from the project root (`DEFAULT_CONFIG_PATH` in `src/utils/config.py`).
+`load_config()` now also raises a clear `ConfigError` for a missing file, invalid YAML or a non-mapping top level.
+
+**Verified:** the framework loads the config when started from `/tmp`; a missing file gives a `ConfigError`.
+
 ## Known issues not fixed yet
 
 These issues are in the code that the testing framework replaces or wraps; they will be addressed there.
