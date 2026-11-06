@@ -1,7 +1,8 @@
 # Fixes to the Provided Code
 
 This document lists every defect found in the provided ammeter infrastructure, how it was reproduced, and how it was fixed.
-Each fix is a separate commit, so `git log` shows the history step by step.
+Each fix is a separate commit, so `git log` shows the history step by step. "The original README" is the README of the
+assignment, now kept unchanged in [docs/ORIGINAL_README.md](docs/ORIGINAL_README.md).
 
 ## Environment
 
@@ -13,9 +14,11 @@ Before installation `import yaml` failed with `ModuleNotFoundError`, so the conf
 **`requirements.txt` was reduced to PyYAML only.** The original file listed numpy, scipy, matplotlib, seaborn, PyYAML
 and pandas, but a scan of all imports showed that the code uses only `yaml`; everything else is the standard library.
 The spec asks to minimize external dependencies, so the unused packages were removed. `main.py` was verified in a fresh
-virtual environment with PyYAML as the only installed package. Statistics, run IDs and result storage will use the
-standard library (`statistics`, `uuid`, `json`); matplotlib will be added later as an optional dependency for
-visualization only.
+virtual environment with PyYAML as the only installed package. Statistics, run IDs and result storage use the standard
+library (`statistics`, `uuid`, `json`).
+
+For the tests only, `requirements-dev.txt` adds **pytest** and **pytest-cov** (`pip install -r requirements-dev.txt`;
+tested with pytest 8.4.2 and pytest-cov 7.1.0). They are not needed to use the framework.
 
 ## Fix 1: Truncated commands in `main.py`
 
@@ -26,13 +29,13 @@ visualization only.
 instead of `b'MEASURE_GREENLEE -get_measurement'`. On a mismatch the server closes the connection without a reply,
 so `recv()` on the client returns empty bytes.
 
-**Fix:** send the full commands specified in `README.md`.
+**Fix:** send the full commands specified in the original README.
 
 ## Fix 2: CIRCUTOR command mismatch
 
-**Symptom:** with the README command, CIRCUTOR still returned `No data received.`
+**Symptom:** with the command from the original README, CIRCUTOR still returned `No data received.`
 
-**Root cause:** `Circutor_Ammeter.py` expected `MEASURE_CIRCUTOR -get_measurement -current`, while `README.md` and
+**Root cause:** `Circutor_Ammeter.py` expected `MEASURE_CIRCUTOR -get_measurement -current`, while the original README and
 `config.yaml` both specify `MEASURE_CIRCUTOR -get_measurement`.
 
 **Fix:** the emulator was aligned with the documentation, not the other way round, because two sources (README and config)
@@ -53,7 +56,7 @@ Verified by running `main.py` three times back to back.
 
 ## Fix 4: Ports differ from README and are hardcoded
 
-**Symptom:** `main.py` used ports 5001/5002/5003, while `README.md` specifies 5000/5001/5002.
+**Symptom:** `main.py` used ports 5001/5002/5003, while the original README specifies 5000/5001/5002.
 Server and client inside `main.py` used the same wrong numbers, so this did not break the connection,
 but it did not conform to the spec.
 
@@ -181,13 +184,22 @@ These are not bug fixes, but they change code that came with the assignment:
 - **`start_server()` takes an optional `ready` event**, set right after `listen()`, so callers wait until the
   emulator accepts connections instead of sleeping a fixed 5 seconds. Calling it without arguments works as before.
 
+## Fix 12: README does not match the repository
+
+**Symptom:** the original README named files that do not exist: `Ammeters/main.py` (it is in the project root),
+`src/testing/AmmeterTester.py` (the file is `test_framework.py`) and `examples/run_test.py` (it is `run_tests.py`).
+
+**Fix:** a new `README.md` describes the actual files, checked against the repository. The original README is kept
+unchanged in `docs/ORIGINAL_README.md`.
+
 ## Known issues not fixed yet
 
-These issues are in the code that the testing framework replaces or wraps; they will be addressed there.
+These are left as they are on purpose: they do not affect how the framework is used here, or they are behaviour of
+the operating system rather than of the code.
 
-- `Ammeters/base_ammeter.py`: one client is served at a time; a single `recv(1024)` assumes the whole command arrives
-  in one TCP segment.
-- `README.md`: file names do not match the repository (`Ammeters/main.py`, `AmmeterTester.py`, `run_test.py`).
+- `Ammeters/base_ammeter.py`: one client is served at a time, and a single `recv(1024)` assumes the whole command
+  arrives in one TCP segment. Enough for one framework querying each emulator in turn with short commands; changing
+  the server further was not needed for the assignment.
 - Windows: connecting to a port where nothing listens takes about 2 s (Windows retries before reporting the
   refusal; Linux and macOS report it at once), found by CI. A measurement of an unreachable ammeter therefore
   takes about 2 s on Windows, and a series of such an ammeter falls behind its schedule; the timing report shows
