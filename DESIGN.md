@@ -7,22 +7,40 @@ code see [FIXES.md](FIXES.md).
 
 ```mermaid
 flowchart LR
-    RT["examples/run_tests.py"] --> FW
-    CLI["python -m src.results<br>list / show / compare"] --> AR
-    CFG["config/config.yaml"] --> FW
+    MAIN["main.py<br>one measurement per ammeter"]
+    RT["examples/run_tests.py<br>full test of every ammeter"]
+    CLI["python -m src.results<br>list / show / compare"]
+    CFG["config/config.yaml"]
 
     subgraph framework["Framework (src/)"]
         FW["AmmeterTestFramework<br>test_framework.py"]
-        FW --> SA["sample()<br>sampling.py"]
-        FW --> AN["analyze(), report<br>analysis.py"]
-        FW --> AR["ResultArchive<br>archive.py"]
-        SA --> API["Ammeter.measure()<br>ammeter.py"]
+        SA["sample()<br>sampling.py"]
+        API["Ammeter.measure()<br>ammeter.py"]
+        AN["analyze(), report<br>analysis.py"]
+        AR["ResultArchive<br>archive.py"]
+        EM["start_emulators()<br>utils/emulators.py"]
+        FW --> SA --> API
+        FW --> AN
+        FW --> AR
+        AR -. recomputes metrics on load .-> AN
     end
 
+    CFG --> FW
+    RT --> FW
+    RT --> EM
+    MAIN --> EM
+    MAIN --> API
+    CLI --> AR
+    CLI --> AN
+
     API --> CL["get_current()<br>Ammeters/client.py"]
-    CL -- "TCP: command / reply" --> DEV["Emulators or real devices"]
-    EM["start_emulators()<br>utils/emulators.py"] --> DEV
+    CL -- "TCP: command / reply" --> DEV["Emulators (Ammeters/)<br>or real devices"]
+    EM -- "starts" --> DEV
 ```
+
+Solid arrows mean "calls"; the dotted arrow is the recomputation of metrics when a run is loaded from the archive.
+`main.py` and the command line also read `config.yaml` (through `load_config`); that is left out to keep the diagram
+readable. `Ammeters/` is the provided code, outside the framework.
 
 Each layer knows only the one below it:
 
