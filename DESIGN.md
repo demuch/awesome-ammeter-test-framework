@@ -194,15 +194,20 @@ stay as it is.
 
 - **Precision, not accuracy.** Accuracy (closeness to the true current) needs a reference; the emulators return
   independent random values, so claiming that one is "more accurate" would be false. What the data supports is how
-  consistent each ammeter is and how precisely its mean is known, and the report says so in every output.
+  dependable each ammeter is to query and how precisely its mean is known, and the report says so in every output.
+  The spec's bonus "identify the most reliable measurement method" cannot be fully met without a reference signal.
 - **95% confidence interval of the mean with Student's t**, because a series of 20-40 measurements is too short for
   the normal value 1.96 (for 20 values t is 2.09). The t values come from the standard table up to 30 degrees of
   freedom and from the Cornish-Fisher expansion above (within 0.0003 of the table); the expansion alone is wrong
   for very small samples (9.71 instead of 12.706 for one degree of freedom), which is why the table is used there.
   scipy would provide the same, but is a large dependency.
 - **Runs of one ammeter are pooled**: more measurements give a narrower interval than judging runs one by one.
-- **The ranking rule is explicit**: success rate, then relative spread of values, then relative spread of response
+- **The ranking measures how dependable an ammeter is to query**: success rate, then relative spread of response
   times. An ammeter that does not answer ranks last however steady it is.
+- **The spread of values is not ranked.** The first version ranked by it; a review pointed out that each emulator
+  draws new random inputs for every request, so that spread describes the inputs, not the ammeter's repeatability.
+  It is still shown, because for an ammeter measuring a constant current it would be exactly that repeatability.
+  The output says "most dependable to query", not "most reliable", so it claims no more than the data shows.
 
 **How accuracy could be assessed with real devices:** connect the ammeters to the same circuit, or to a reference
 source with a known current, and query them at the same moments (this needs concurrent sampling, see Limitations).

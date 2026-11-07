@@ -129,8 +129,8 @@ the plots.
 
 ## Assessing ammeters
 
-`assess` ranks ammeters by reliability and shows how precisely the mean of each one is known. Several runs of one
-ammeter are pooled, which narrows the interval:
+`assess` ranks ammeters by how dependable they are to query and shows how precisely the mean of each one is known.
+Several runs of one ammeter are pooled, which narrows the interval:
 
 ```sh
 python -m src.results --dir sample_results assess 20261107-081348 20261107-081350 20261107-081352 20261107-081354 20261107-081356 20261107-081358
@@ -140,27 +140,33 @@ Assessment of 3 ammeter(s) from 6 run(s)
 
 RANK AMMETER      RUNS MEASURED    OK      MEAN          95% CI OF MEAN     +-  SPREAD  RESPONSE SPREAD
 1    circutor        2       40  100%   0.02846      0.02374 .. 0.03317    17%     52%              22%
-2    entes           2       40  100%      68.2          56.05 .. 80.35    18%     56%              91%
-3    greenlee        2       40  100%    0.3316       0.04971 .. 0.6135    85%    266%              27%
+2    greenlee        2       40  100%    0.3316       0.04971 .. 0.6135    85%    266%              27%
+3    entes           2       40  100%      68.2          56.05 .. 80.35    18%     56%              91%
 
-Most reliable: circutor (100% successful, relative spread 52%).
-Ranked by success rate (higher first), then relative spread of values, then relative spread of
-response times (lower first).
+Most dependable to query: circutor (100% successful, response time spread 22%).
+Ranked by how dependable the ammeter is to query: success rate (higher first), then relative spread
+of response times (lower first). The spread of values is shown but not ranked: the emulators draw
+new random inputs for every request, so it reflects those inputs, not the ammeter; it measures
+repeatability only when the ammeter measures a constant current.
 95% CI: the range that contains the ammeter's true mean with 95% confidence; +- is its half-width
 relative to the mean. More measurements narrow it.
-This compares consistency and how precisely each mean is known, not accuracy: accuracy needs a known
-reference current, or ammeters measuring the same source at the same time. The emulators return
-independent random values, so their means cannot be compared with each other.
+This compares how dependable each ammeter is to query and how precisely each mean is known, not
+accuracy: accuracy needs a known reference current, or ammeters measuring the same source at the
+same time. The emulators return independent random values, so their means cannot be compared with
+each other.
 ```
 
+- **Ranking**: success rate first (an ammeter that does not answer cannot be relied on, however steady its values),
+  then the relative spread of response times.
+- **The spread of values is shown, not ranked.** Each emulator draws new random inputs for every request, so the
+  spread of its values reflects those inputs, not how repeatably the ammeter measures. It would measure
+  repeatability for an ammeter measuring a constant current.
 - **95% CI of the mean**: the range that contains the ammeter's true mean with 95% confidence (Student's t, from the
   standard library: no scipy). `+-` is its half-width relative to the mean.
-- **Ranking**: success rate first (an ammeter that does not answer is unreliable however steady its values), then
-  relative spread of values, then relative spread of response times.
 - **Not accuracy.** Accuracy is closeness to the true current; it needs a known reference, or ammeters measuring the
-  same source at the same time. The emulators return independent random values, so the sample output can say that
-  Greenlee's mean is known only to about +-85% with 40 measurements, but not which emulator is "more correct". How
-  accuracy could be assessed with real devices is described in DESIGN.md.
+  same source at the same time. The sample output can say that Greenlee's mean is known only to about +-85% with 40
+  measurements, but not which emulator is "more correct". How accuracy could be assessed with real devices is
+  described in DESIGN.md.
 
 ## Project structure
 

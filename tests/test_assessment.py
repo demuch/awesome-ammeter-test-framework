@@ -76,12 +76,20 @@ def test_fewer_than_two_values_have_no_interval(clock):
 
 # --- ranking ---
 
-def test_ranking_rules(clock):
-    """Success rate decides first, then the relative spread of values; a failing ammeter is never ranked above."""
-    steady = record_with_values(clock, "steady", [10, 10.1, 9.9, 10, 10])
-    noisy = record_with_values(clock, "noisy", [1, 20, 5, 15, 9])
-    failing = record_with_values(clock, "failing", [10, 10, 10, None, 10])  # Perfectly steady, but 20% failed
-    assert [a.ammeter for a in assess([failing, noisy, steady])] == ["steady", "noisy", "failing"]
+def test_success_rate_ranks_first(clock):
+    """An ammeter that fails some requests ranks below one that answers all, however steady its values are."""
+    answers_all = record_with_values(clock, "answers_all", [1, 20, 5, 15, 9])
+    failing = record_with_values(clock, "failing", [10, 10, 10, None, 10])  # Perfectly steady values, but 20% failed
+    assert [a.ammeter for a in assess([failing, answers_all])] == ["answers_all", "failing"]
+
+
+def test_spread_of_values_does_not_change_the_rank(clock):
+    """The spread of values is shown but not ranked: with random emulator inputs it says nothing about the ammeter."""
+    timing = [0.001, 0.002, 0.001, 0.002, 0.001]
+    steady_values = record_with_values(clock, "steady_values", [10, 10.1, 9.9, 10, 10], durations=timing)
+    noisy_values = record_with_values(clock, "noisy_values", [1, 20, 5, 15, 9], durations=[0.001] * 5)
+    # noisy_values answers more evenly, so it ranks first although its values spread far more
+    assert [a.ammeter for a in assess([steady_values, noisy_values])] == ["noisy_values", "steady_values"]
 
 
 def test_response_time_spread_breaks_ties(clock):
@@ -95,10 +103,11 @@ def test_response_time_spread_breaks_ties(clock):
 
 def test_report_names_the_best_and_states_what_it_does_not_measure(clock):
     """The report names the most reliable ammeter, the ranking rule and that accuracy is not assessed."""
-    text = format_assessment(assess([record_with_values(clock, "a", [1, 1.1, 0.9]),
-                                     record_with_values(clock, "b", [1, 5, 9])]), 2)
-    assert "Most reliable: a" in text
-    assert "Ranked by success rate" in text
+    text = format_assessment(assess([record_with_values(clock, "a", [1, 1.1, 0.9], durations=[0.001] * 3),
+                                     record_with_values(clock, "b", [1, 5, 9], durations=[0.001, 0.5, 0.001])]), 2)
+    assert "Most dependable to query: a" in text
+    assert "Most reliable" not in text
+    assert "not ranked" in " ".join(text.split())
     assert "not accuracy" in " ".join(text.split())  # The note is wrapped over several lines
     assert all(len(line) <= 110 for line in text.splitlines())
 

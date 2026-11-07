@@ -1,9 +1,9 @@
 """
-Precision and reliability of ammeters from archived runs.
+How dependable ammeters are to query, and how precisely the mean of their values is known, from archived runs.
 
 This does not measure accuracy (closeness to the true current): that needs a known reference current, or ammeters
-measuring the same source at the same time. It measures how consistent each ammeter is and how precisely the mean
-of its values is known.
+measuring the same source at the same time. Nor is the spread of values used to rank ammeters: the emulators draw
+new random inputs for every request, so that spread reflects the inputs, not the ammeter.
 """
 import math
 import statistics
@@ -21,11 +21,14 @@ _T_TABLE = (12.706, 4.303, 3.182, 2.776, 2.571, 2.447, 2.365, 2.306, 2.262, 2.22
             2.201, 2.179, 2.160, 2.145, 2.131, 2.120, 2.110, 2.101, 2.093, 2.086,
             2.080, 2.074, 2.069, 2.064, 2.060, 2.056, 2.052, 2.048, 2.045, 2.042)
 
-CAVEAT = ("This compares consistency and how precisely each mean is known, not accuracy: accuracy needs a known "
+CAVEAT = ("This compares how dependable each ammeter is to query and how precisely each mean is known, not "
+          "accuracy: accuracy needs a known "
           "reference current, or ammeters measuring the same source at the same time. The emulators return "
           "independent random values, so their means cannot be compared with each other.")
-RANKING_RULE = ("Ranked by success rate (higher first), then relative spread of values, then relative spread of "
-                "response times (lower first).")
+RANKING_RULE = ("Ranked by how dependable the ammeter is to query: success rate (higher first), then relative "
+                "spread of response times (lower first). The spread of values is shown but not ranked: the "
+                "emulators draw new random inputs for every request, so it reflects those inputs, not the ammeter; "
+                "it measures repeatability only when the ammeter measures a constant current.")
 
 
 def t_critical(degrees_of_freedom: int) -> float:
@@ -85,7 +88,7 @@ def assess(records: Sequence[RunRecord]) -> List[AmmeterAssessment]:
     Pools the runs of each ammeter and ranks the ammeters by reliability.
 
     :param records: Runs of one or more ammeters; several runs of one ammeter are pooled, which narrows the interval.
-    :returns: One assessment per ammeter, most reliable first (see :data:`RANKING_RULE`).
+    :returns: One assessment per ammeter, most dependable to query first (see :data:`RANKING_RULE`).
     """
     grouped: Dict[str, List[RunRecord]] = {}
     for record in records:
@@ -106,13 +109,12 @@ def assess(records: Sequence[RunRecord]) -> List[AmmeterAssessment]:
     return sorted(assessments, key=_rank_key)
 
 
-def _rank_key(a: AmmeterAssessment) -> Tuple[float, float, float]:
+def _rank_key(a: AmmeterAssessment) -> Tuple[float, float]:
     """
     :param a: One assessment.
     :returns: Sort key of :data:`RANKING_RULE`; a missing spread counts as worst.
     """
     return (-a.success_rate,
-            a.values.relative_spread if a.values.relative_spread is not None else math.inf,
             a.response_time.relative_spread if a.response_time.relative_spread is not None else math.inf)
 
 
@@ -133,8 +135,8 @@ def format_assessment(assessments: Sequence[AmmeterAssessment], run_count: int) 
     lines.append("")
     if len(assessments) > 1:
         best = assessments[0]
-        lines.append(f"Most reliable: {best.ammeter} ({best.success_rate:.0%} successful, "
-                     f"relative spread {_share(best.values.relative_spread)}).")
+        lines.append(f"Most dependable to query: {best.ammeter} ({best.success_rate:.0%} successful, "
+                     f"response time spread {_share(best.response_time.relative_spread)}).")
     notes = (RANKING_RULE,
              "95% CI: the range that contains the ammeter's true mean with 95% confidence; +- is its half-width "
              "relative to the mean. More measurements narrow it.",
