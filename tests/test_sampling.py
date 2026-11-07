@@ -129,6 +129,7 @@ def test_real_time_sampling_with_emulator(emulator):
     """With the real clock and a real emulator the series is complete and close to the planned frequency."""
     series = sample(emulator("greenlee"), SamplingConfig.from_values(count=5, frequency_hz=10))
     assert len(series.values) == 5
-    assert series.timing.late_count == 0
-    # Generous tolerance: sleep() can be about 15 ms late on Windows
+    # No assertion on late measurements: on a loaded machine (CI macOS VMs wake up to about 75 ms late) a start
+    # can legitimately miss its moment. How late measurements are handled is tested exactly with the fake clock.
+    # Generous tolerance for the same reason
     assert series.timing.actual_frequency_hz == pytest.approx(10, rel=0.25)
