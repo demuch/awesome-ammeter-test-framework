@@ -1,0 +1,3 @@
+# Optional: plots of archived runs (python -m src.results plot); the framework works without it
+-r requirements.txt
+matplotlib>=3.5

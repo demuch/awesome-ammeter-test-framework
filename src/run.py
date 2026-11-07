@@ -13,6 +13,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from src.testing.archive import ArchiveError
+from src.testing.plots import PlotError, plot_run
 from src.testing.sampling import COUNT_KEY, DURATION_KEY, FREQUENCY_KEY, SamplingConfig
 from src.testing.test_framework import AmmeterTestFramework
 from src.utils.config import DEFAULT_CONFIG_PATH, ConfigError
@@ -25,6 +26,8 @@ def main(argv: Optional[List[str]] = None) -> int:
     Tests the selected ammeters one after another.
 
     :param argv: Command-line arguments without the program name; by default ``sys.argv[1:]``.
+    Archived runs also get a plot when ``analysis.visualization.enabled`` is true and matplotlib is installed.
+
     :returns: Exit code: 0 if every ammeter was tested (and archived, if saving is on); 1 for a configuration
         error, an emulator that did not start or a run that could not be archived. Failed measurements are
         results of the test, not errors of the run, so they do not change the exit code.
@@ -79,17 +82,28 @@ def main(argv: Optional[List[str]] = None) -> int:
         exit_code = 1
 
     save = framework.save_results and not args.no_save
+    plot = save and framework.plot_enabled
     results = {}
     for name in selected:
         log.info(f"Testing {name} ammeter...")
         results[name] = framework.run_test(name, sampling_config)
         if save:
             try:
-                log.info(f"Saved {name} run as {framework.save(results[name]).run_id}")
+                record = framework.save(results[name])
+                log.info(f"Saved {name} run as {record.run_id}")
             except ArchiveError as e:
                 # The result is still printed below; only the archive copy is missing
                 log.error(f"Could not save {name} run: {e}")
                 exit_code = 1
+                continue
+            if plot:
+                try:
+                    path = plot_run(record, framework.archive.directory / f"{record.run_id}.png", framework.plot_types)
+                    log.info(f"Saved plot {path.name}")
+                except PlotError as e:
+                    # Plots are optional: without matplotlib the test itself is complete
+                    log.info(f"Plots skipped: {e}")
+                    plot = False
 
     for name, result in results.items():
         print(f"\nResults for {name}:")

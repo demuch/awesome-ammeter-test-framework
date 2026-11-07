@@ -25,6 +25,8 @@ def config(tmp_path, monkeypatch):
         "testing": {"sampling": {"measurements_count": 3, "sampling_frequency_hz": 50}},
         "ammeters": {name: {"port": free_port(), "command": command.decode(), "emulator": class_path}
                      for name, (class_path, command) in EMULATORS.items()},
+        # Plots are tested in test_plots.py; here they would only slow the tests down
+        "analysis": {"visualization": {"enabled": False}},
         "result_management": {"results_dir": str(runs)},
     }
     path = tmp_path / "config.yaml"

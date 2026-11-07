@@ -6,6 +6,7 @@ Usage (from the project root)::
     python -m src.results list [--ammeter NAME]
     python -m src.results show RUN_ID
     python -m src.results compare RUN_ID RUN_ID [RUN_ID ...]
+    python -m src.results plot RUN_ID [RUN_ID ...] [--output FILE.png] [--theme light|dark]
     python -m src.results --dir sample_results list
 
 A RUN_ID may be shortened to any unique beginning, like a git commit hash.
@@ -18,6 +19,7 @@ from typing import Callable, List, Optional, Sequence, Tuple
 from Ammeters.error_simulation import FAULTS, ErrorSimulation
 from src.testing.analysis import format_report
 from src.testing.archive import ArchiveError, ResultArchive, RunRecord, archive_settings_from_config
+from src.testing.plots import PlotError, plot_comparison, plot_run, plot_types_from_config
 from src.utils.config import DEFAULT_CONFIG_PATH, ConfigError, load_config
 
 # Rows of the compare table: label, how to get the value from a run, how to show and compare it
@@ -46,13 +48,17 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m src.results", description="View and compare archived test runs.")
     parser.add_argument("--dir", type=Path,
                         help="archive folder (default: result_management.results_dir in config.yaml)")
-    commands = parser.add_subparsers(dest="command", required=True, metavar="{list,show,compare}")
+    commands = parser.add_subparsers(dest="command", required=True, metavar="{list,show,compare,plot}")
     list_parser = commands.add_parser("list", help="list saved runs, newest first")
     list_parser.add_argument("--ammeter", help="only runs of this ammeter")
     show_parser = commands.add_parser("show", help="show the full report of one run")
     show_parser.add_argument("run_id", help="run ID or its unique beginning")
     compare_parser = commands.add_parser("compare", help="compare metrics of several runs side by side")
     compare_parser.add_argument("run_ids", nargs="+", metavar="run_id", help="two or more run IDs or their beginnings")
+    plot_parser = commands.add_parser("plot", help="draw one run, or compare several (needs requirements-plot.txt)")
+    plot_parser.add_argument("run_ids", nargs="+", metavar="run_id", help="one run, or several to compare")
+    plot_parser.add_argument("--output", type=Path, help="PNG file (default: next to the run in the archive)")
+    plot_parser.add_argument("--theme", choices=("light", "dark"), default="light", help="colors (default: light)")
     args = parser.parse_args(argv)
     if args.command == "compare" and len(args.run_ids) < 2:
         compare_parser.error("give at least two runs to compare")
@@ -67,9 +73,11 @@ def main(argv: Optional[List[str]] = None) -> int:
             _list(archive, args.ammeter)
         elif args.command == "show":
             print(_show(archive.load(args.run_id)))
-        else:
+        elif args.command == "compare":
             print(_compare([archive.load(run_id) for run_id in args.run_ids]))
-    except (ArchiveError, ConfigError) as e:
+        else:
+            print(f"Saved plot to {_plot(archive, args.run_ids, args.output, args.theme)}")
+    except (ArchiveError, ConfigError, PlotError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
     return 0
@@ -117,6 +125,27 @@ def _show(record: RunRecord) -> str:
         format_report(record.result),
     ]
     return "\n".join(lines)
+
+
+def _plot(archive: ResultArchive, run_ids: List[str], output: Optional[Path], theme: str) -> Path:
+    """
+    Draws one run with the panels of ``analysis.visualization.plot_types``, or compares several runs.
+
+    :param archive: Archive with the runs.
+    :param run_ids: Run IDs or their beginnings.
+    :param output: PNG file, or ``None`` for a file next to the runs in the archive.
+    :param theme: ``"light"`` or ``"dark"``.
+    :returns: Path of the written file.
+    :raises ArchiveError: A run cannot be found or read.
+    :raises ConfigError: The visualization settings in config.yaml are invalid.
+    :raises PlotError: matplotlib is not installed, or the runs have nothing to plot.
+    """
+    records = [archive.load(run_id) for run_id in run_ids]
+    if len(records) == 1:
+        _, plot_types = plot_types_from_config(load_config(DEFAULT_CONFIG_PATH))
+        return plot_run(records[0], output or archive.directory / f"{records[0].run_id}.png", plot_types, theme)
+    default = archive.directory / f"compare_{records[0].run_id}_{records[-1].run_id}.png"
+    return plot_comparison(records, output or default, theme)
 
 
 def _format_error_simulation(errors: ErrorSimulation) -> str:

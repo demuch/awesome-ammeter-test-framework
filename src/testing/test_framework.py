@@ -4,13 +4,14 @@ from typing import Optional, Union
 from .ammeter import load_ammeters
 from .analysis import TestResult, analyze, format_report, report_metrics_from_config
 from .archive import ResultArchive, RunRecord, archive_settings_from_config, current_environment, new_run_id
+from .plots import plot_types_from_config
 from .sampling import SamplingConfig, sample
 from ..utils.config import DEFAULT_CONFIG_PATH, load_config
 
 class AmmeterTestFramework:
     def __init__(self, config_path: Union[str, Path] = DEFAULT_CONFIG_PATH):
         """
-        Loads the configuration and creates the ammeters, the sampling, report and archive settings
+        Loads the configuration and creates the ammeters, the sampling, report, archive and plot settings
         described in it, so configuration errors show up before any test runs.
 
         :param config_path: Path to the YAML configuration file; by default ``config/config.yaml``
@@ -22,6 +23,7 @@ class AmmeterTestFramework:
         self.sampling = SamplingConfig.from_config(self.config)
         self.report_metrics = report_metrics_from_config(self.config)
         results_dir, self.save_results = archive_settings_from_config(self.config)
+        self.plot_enabled, self.plot_types = plot_types_from_config(self.config)
         self.archive = ResultArchive(results_dir)
         # The code does not change during a session, so the environment is determined once
         self.environment = current_environment()

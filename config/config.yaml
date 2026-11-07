@@ -31,9 +31,12 @@ analysis:
   # Which metrics the report shows; all of them are always computed.
   # Known: mean, median, stdev, min, max, relative_spread. Empty or missing = all.
   statistical_metrics: [mean, median, stdev, min, max, relative_spread]
+  # Plots need requirements-plot.txt (matplotlib). enabled: python -m src.run also saves a plot of every
+  # archived run. plot_types: panels of a single-run plot, any of values, histogram, response_time, timing;
+  # empty or missing = all.
   visualization:
     enabled: true
-    plot_types:
+    plot_types: [values, histogram, response_time, timing]
 
 result_management:
   # Folder for archived runs, one JSON file per run; relative paths start at the project root.
