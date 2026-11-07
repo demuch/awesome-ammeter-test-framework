@@ -1,0 +1,32 @@
+2026-11-07 12:17:31,280 [INFO] test_run: Testing greenlee ammeter...
+2026-11-07 12:17:33,191 [INFO] test_run: Saved greenlee run as 20261107-101731-greenlee-619d611c
+2026-11-07 12:17:33,627 [INFO] test_run: Saved plot 20261107-101731-greenlee-619d611c.png
+2026-11-07 12:17:33,627 [INFO] test_run: Testing entes ammeter...
+2026-11-07 12:17:35,537 [INFO] test_run: Saved entes run as 20261107-101733-entes-38c420d4
+2026-11-07 12:17:35,734 [INFO] test_run: Saved plot 20261107-101733-entes-38c420d4.png
+2026-11-07 12:17:35,734 [INFO] test_run: Testing circutor ammeter...
+2026-11-07 12:17:38,785 [INFO] test_run: Saved circutor run as 20261107-101735-circutor-944b4545
+2026-11-07 12:17:38,960 [INFO] test_run: Saved plot 20261107-101735-circutor-944b4545.png
+
+Results for greenlee:
+=== greenlee: 20 measurements, 15 ok, 5 failed (75%) ===
+Values (A)     mean 0.1254  median 0.1139  stdev 0.09673  min 0.0368  max 0.3771  relative_spread 77.1%
+Response time  mean 0.73 ms  median 0.71 ms  stdev 0.18 ms  min 0.37 ms  max 1.03 ms  relative_spread 24.7%
+Timing         10 Hz planned, 9.97 Hz actual; lag mean 3.2 ms, max 5.0 ms; 0 late, schedule shifted by 0.0 ms
+               interval between measurements 95.2-104.8 ms
+Failures       5x localhost:5000: ERROR: simulated failure
+
+Results for entes:
+=== entes: 20 measurements, 15 ok, 5 failed (75%) ===
+Values (A)     mean 87.98  median 91.16  stdev 46.96  min 11.94  max 158.8  relative_spread 53.4%
+Response time  mean 0.80 ms  median 0.71 ms  stdev 0.22 ms  min 0.60 ms  max 1.23 ms  relative_spread 27.0%
+Timing         10 Hz planned, 10.00 Hz actual; lag mean 2.6 ms, max 5.0 ms; 0 late, schedule shifted by 0.0 ms
+               interval between measurements 95.4-104.3 ms
+Failures       5x localhost:5001: empty reply to b'MEASURE_ENTES -get_data'
+
+Results for circutor:
+=== circutor: 20 measurements, 20 ok, 0 failed (100%) ===
+Values (A)     mean 0.03028  median 0.03144  stdev 0.01829  min 0.006696  max 0.06306  relative_spread 60.4%
+Response time  mean 76.58 ms  median 0.88 ms  stdev 134.59 ms  min 0.48 ms  max 306.46 ms  relative_spread 175.7%
+Timing         10 Hz planned, 6.94 Hz actual; lag mean 44.6 ms, max 209.2 ms; 4 late, schedule shifted by 831.9 ms
+               interval between measurements 96.4-306.5 ms

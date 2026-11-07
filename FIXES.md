@@ -20,6 +20,10 @@ library (`statistics`, `uuid`, `json`).
 For the tests only, `requirements-dev.txt` adds **pytest** and **pytest-cov** (`pip install -r requirements-dev.txt`;
 tested with pytest 8.4.2 and pytest-cov 7.1.0). They are not needed to use the framework.
 
+For the optional plots, `requirements-plot.txt` adds **matplotlib** (tested with 3.9.4, the last release for
+Python 3.9; it installs 13 further packages, among them numpy, pillow and pyparsing). `requirements-dev.txt`
+includes it.
+
 ## Fix 1: Truncated commands in `main.py`
 
 **Symptom:** after uncommenting the requests in `main.py`, all three requests printed `No data received.`

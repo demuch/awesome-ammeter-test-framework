@@ -1,0 +1,328 @@
+{
+  "format_version": 1,
+  "run_id": "20261107-101731-greenlee-619d611c",
+  "started_at": "2026-11-07T10:17:31.280785+00:00",
+  "ammeter": {
+    "name": "greenlee",
+    "port": 5000,
+    "command": "MEASURE_GREENLEE -get_measurement",
+    "host": "localhost",
+    "timeout": 5.0,
+    "emulator": "Ammeters.Greenlee_Ammeter.GreenleeAmmeter",
+    "simulate_errors": {
+      "error_reply": 0.1,
+      "garbage": 0.05,
+      "no_reply": 0.0,
+      "slow_reply": 0.0,
+      "slow_reply_s": 0.5,
+      "seed": 42
+    }
+  },
+  "environment": {
+    "python": "3.9.6",
+    "platform": "macOS-15.7.7-arm64-arm-64bit",
+    "code_version": "f564a95"
+  },
+  "summary": {
+    "success_rate": 0.75,
+    "values": {
+      "count": 15,
+      "mean": 0.12544065813209007,
+      "median": 0.11387236440435282,
+      "stdev": 0.09673306958583827,
+      "min": 0.03680330609542024,
+      "max": 0.3771148648315108,
+      "relative_spread": 0.771146062419232
+    },
+    "response_time": {
+      "count": 20,
+      "mean": 0.0007288563999999845,
+      "median": 0.0007148539999999315,
+      "stdev": 0.00018025354472733495,
+      "min": 0.00037470900000000085,
+      "max": 0.00103091700000002,
+      "relative_spread": 0.24731009390510778
+    },
+    "timing": {
+      "actual_frequency_hz": 9.973656209154974,
+      "mean_lag_s": 0.003155691299999984,
+      "max_lag_s": 0.005039041000000077,
+      "late_count": 0,
+      "min_interval_s": 0.09521804099999986,
+      "max_interval_s": 0.10479900000000009,
+      "schedule_shift_s": 0.0
+    }
+  },
+  "series": {
+    "ammeter": "greenlee",
+    "config": {
+      "count": 20,
+      "duration_s": 2.0,
+      "frequency_hz": 10.0
+    },
+    "started_at": 1794046651.2807848,
+    "samples": [
+      {
+        "index": 0,
+        "scheduled_s": 0.0,
+        "started_s": 2.2499999999814335e-06,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046651.280791,
+          "value": 0.09483515728706621,
+          "error": null,
+          "duration_s": 0.00037470900000000085
+        }
+      },
+      {
+        "index": 1,
+        "scheduled_s": 0.1,
+        "started_s": 0.100636791,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046651.381433,
+          "value": null,
+          "error": "localhost:5000: ERROR: simulated failure",
+          "duration_s": 0.000541084000000025
+        }
+      },
+      {
+        "index": 2,
+        "scheduled_s": 0.2,
+        "started_s": 0.20501791600000002,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046651.4858081,
+          "value": 0.1522169209987433,
+          "error": null,
+          "duration_s": 0.0006516659999999952
+        }
+      },
+      {
+        "index": 3,
+        "scheduled_s": 0.3,
+        "started_s": 0.305037458,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046651.585848,
+          "value": 0.06952686940238563,
+          "error": null,
+          "duration_s": 0.000726208000000006
+        }
+      },
+      {
+        "index": 4,
+        "scheduled_s": 0.4,
+        "started_s": 0.40501720799999996,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046651.685807,
+          "value": 0.11779024622462644,
+          "error": null,
+          "duration_s": 0.0006195410000000567
+        }
+      },
+      {
+        "index": 5,
+        "scheduled_s": 0.5,
+        "started_s": 0.503228041,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046651.784019,
+          "value": 0.05796021138560186,
+          "error": null,
+          "duration_s": 0.00044683400000000706
+        }
+      },
+      {
+        "index": 6,
+        "scheduled_s": 0.6,
+        "started_s": 0.600723583,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046651.8815172,
+          "value": 0.11722032027236788,
+          "error": null,
+          "duration_s": 0.0006125840000000826
+        }
+      },
+      {
+        "index": 7,
+        "scheduled_s": 0.7,
+        "started_s": 0.701443875,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046651.982239,
+          "value": null,
+          "error": "localhost:5000: ERROR: simulated failure",
+          "duration_s": 0.0010259590000000207
+        }
+      },
+      {
+        "index": 8,
+        "scheduled_s": 0.8,
+        "started_s": 0.801255083,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046652.08205,
+          "value": 0.3771148648315108,
+          "error": null,
+          "duration_s": 0.00103091700000002
+        }
+      },
+      {
+        "index": 9,
+        "scheduled_s": 0.9,
+        "started_s": 0.9040617499999999,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046652.1848729,
+          "value": null,
+          "error": "localhost:5000: ERROR: simulated failure",
+          "duration_s": 0.0008898339999998672
+        }
+      },
+      {
+        "index": 10,
+        "scheduled_s": 1.0,
+        "started_s": 1.005039041,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046652.285829,
+          "value": 0.07705591968269532,
+          "error": null,
+          "duration_s": 0.0007512499999999811
+        }
+      },
+      {
+        "index": 11,
+        "scheduled_s": 1.1,
+        "started_s": 1.105030375,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046652.385828,
+          "value": 0.12839830438399819,
+          "error": null,
+          "duration_s": 0.0006493750000000631
+        }
+      },
+      {
+        "index": 12,
+        "scheduled_s": 1.2,
+        "started_s": 1.203624208,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046652.484416,
+          "value": null,
+          "error": "localhost:5000: ERROR: simulated failure",
+          "duration_s": 0.0007159999999999389
+        }
+      },
+      {
+        "index": 13,
+        "scheduled_s": 1.3,
+        "started_s": 1.300554958,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046652.581442,
+          "value": 0.049902949002191034,
+          "error": null,
+          "duration_s": 0.0009148749999998707
+        }
+      },
+      {
+        "index": 14,
+        "scheduled_s": 1.4,
+        "started_s": 1.405015125,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046652.6857998,
+          "value": 0.31415107003439446,
+          "error": null,
+          "duration_s": 0.0007233749999999706
+        }
+      },
+      {
+        "index": 15,
+        "scheduled_s": 1.5,
+        "started_s": 1.500233166,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046652.781031,
+          "value": 0.03680330609542024,
+          "error": null,
+          "duration_s": 0.0006155000000001021
+        }
+      },
+      {
+        "index": 16,
+        "scheduled_s": 1.6,
+        "started_s": 1.605032166,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046652.885824,
+          "value": 0.04467556988335229,
+          "error": null,
+          "duration_s": 0.000885625000000001
+        }
+      },
+      {
+        "index": 17,
+        "scheduled_s": 1.7,
+        "started_s": 1.703835125,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046652.984628,
+          "value": 0.1300857980926445,
+          "error": null,
+          "duration_s": 0.0009752919999999055
+        }
+      },
+      {
+        "index": 18,
+        "scheduled_s": 1.8,
+        "started_s": 1.803304916,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046653.084092,
+          "value": 0.11387236440435282,
+          "error": null,
+          "duration_s": 0.0007137079999999241
+        }
+      },
+      {
+        "index": 19,
+        "scheduled_s": 1.9,
+        "started_s": 1.905020791,
+        "late": false,
+        "measurement": {
+          "ammeter": "greenlee",
+          "timestamp": 1794046653.185809,
+          "value": null,
+          "error": "localhost:5000: ERROR: simulated failure",
+          "duration_s": 0.0007127919999998511
+        }
+      }
+    ],
+    "schedule_shift_s": 0.0
+  }
+}

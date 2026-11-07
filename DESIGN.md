@@ -19,6 +19,7 @@ flowchart LR
         AN["analyze(), report<br>analysis.py"]
         AR["ResultArchive<br>archive.py"]
         EM["start_emulators()<br>utils/emulators.py"]
+        PL["plots<br>plots.py (optional)"]
         FW --> SA --> API
         FW --> AN
         FW --> AR
@@ -32,6 +33,8 @@ flowchart LR
     MAIN --> API
     CLI --> AR
     CLI --> AN
+    CLI --> PL
+    RT --> PL
 
     API --> CL["get_current()<br>Ammeters/client.py"]
     CL -- "TCP: command / reply" --> DEV["Emulators (Ammeters/)<br>or real devices"]
@@ -170,11 +173,27 @@ stay as it is.
   tests check `loaded == saved` for normal, failed and late runs.
 - **`format_version`** in every file, so the format can change later and old files are still recognised.
 
+### Plots
+
+- **matplotlib is optional** (`requirements-plot.txt`): with the 13 packages it brings (numpy among them) it is 21 MB,
+  against 172 KB for PyYAML, and most uses (test benches, CI, overnight runs) need no plots. It is imported only
+  inside the plotting functions; without it `plot` names the file to install and `python -m src.run` skips plots.
+- **The Agg backend** writes files without a display, so plots work in CI and on headless machines.
+- **One axis per chart.** Values, response times and start delays have different units, so each is its own panel
+  rather than sharing a chart with two scales.
+- **One series, one color**; red and orange appear only where they mean "failed" and "late", always with a legend
+  label. A failed measurement has no value, so it is marked on the bottom edge, apart from the data.
+- **Comparisons use values relative to each run's mean**, for the same reason as `relative_spread`: the ammeters'
+  scales differ by a factor of hundreds. All boxes share one color, because the runs are named on the axis.
+- **Light and dark versions** use separately chosen colors (not an inversion), checked for contrast against their
+  background; the README shows the one that matches the reader's GitHub theme.
+
 ### Dependencies
 
-- **Runtime: PyYAML only.** The original `requirements.txt` listed numpy, scipy, matplotlib, seaborn and pandas,
+- **Runtime: PyYAML only; plots optional with matplotlib.** The original `requirements.txt` listed numpy, scipy, matplotlib, seaborn and pandas,
   none of which the code imports; they were removed, as the spec asks to minimise dependencies.
-- **Development: pytest and pytest-cov** in a separate `requirements-dev.txt`.
+- **Development: pytest and pytest-cov** in a separate `requirements-dev.txt`, which also includes the plot
+  requirements so the plots are tested.
 
 ## Error handling
 

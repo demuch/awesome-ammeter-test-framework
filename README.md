@@ -21,6 +21,7 @@ Python 3.9 or newer. From the project root:
 python -m venv .venv
 source .venv/bin/activate            # Windows: .venv\Scripts\activate
 pip install -r requirements.txt      # PyYAML only
+pip install -r requirements-plot.txt # optional: plots (adds matplotlib)
 ```
 
 Get one measurement from each ammeter (the emulators are started automatically):
@@ -77,6 +78,7 @@ python -m src.results list
 python -m src.results --dir sample_results list
 python -m src.results --dir sample_results show 20261107-081400        # an ammeter that did not answer
 python -m src.results --dir sample_results compare 20261107-081348 20261107-081354
+python -m src.results --dir sample_results plot 20261107-101735             # needs requirements-plot.txt
 ```
 
 ## What the report means
@@ -89,12 +91,49 @@ python -m src.results --dir sample_results compare 20261107-081348 20261107-0813
 | `Timing` | planned and actual frequency, how late measurements started, how many could not start on time, and how far the schedule was shifted because of them; the shortest and longest interval show local problems that the average frequency hides |
 | `Failures` | only when measurements failed: each reason once, with its count |
 
+## Plots
+
+With `requirements-plot.txt` installed, `python -m src.run` saves a plot next to every archived run, and
+`python -m src.results plot` draws any archived run, or compares several:
+
+```sh
+python -m src.results plot RUN_ID                       # one run, written next to it in the archive
+python -m src.results plot RUN_ID RUN_ID ...            # comparison of several runs
+python -m src.results plot RUN_ID --output run.png --theme dark
+```
+
+A run: values over time (failed measurements are marked on the bottom edge), their distribution, response times,
+and how late each measurement started against the schedule (late ones are marked). These two sample runs come from
+`config/error_simulation.yaml`:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="sample_results/plots/run_failures_dark.png">
+  <img alt="Greenlee run with 5 simulated failed measurements" src="sample_results/plots/run_failures_light.png">
+</picture>
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="sample_results/plots/run_slow_replies_dark.png">
+  <img alt="CIRCUTOR run with slow replies and 4 late measurements" src="sample_results/plots/run_slow_replies_light.png">
+</picture>
+
+A comparison: each run's values relative to its own mean (the ammeters have very different scales), and response
+times:
+
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="sample_results/plots/comparison_dark.png">
+  <img alt="Comparison of six runs of the three emulated ammeters" src="sample_results/plots/comparison_light.png">
+</picture>
+
+Without matplotlib everything else works; `plot` says what to install, and `python -m src.run` notes that it skipped
+the plots.
+
 ## Project structure
 
 ```
 main.py                    Provided; one measurement from each ammeter (fixed, see FIXES.md)
 config/config.yaml         All settings: ammeters, sampling, report, archive
 config/error_simulation.yaml  Example: the emulators with simulated faults
+requirements*.txt          Runtime (PyYAML), optional plots (+ matplotlib), development (+ pytest, pytest-cov)
 examples/run_tests.py      Provided example, kept unchanged: marked "don't use it" (see FIXES.md)
 Ammeters/                  Provided emulators and client (fixed, see FIXES.md)
   base_ammeter.py          TCP server shared by all emulators
@@ -107,9 +146,10 @@ src/
     sampling.py            SamplingConfig, sample(): series on a schedule with a timing report
     analysis.py            Statistics, TestResult, text report
     archive.py             Run IDs, metadata, saving and loading runs (JSON)
+    plots.py               Plots of a run and comparisons of runs (optional matplotlib)
     test_framework.py      AmmeterTestFramework: ties the parts together
   run.py                   Command line: run the test on ammeters (python -m src.run)
-  results.py               Command line: list, show, compare archived runs (python -m src.results)
+  results.py               Command line: list, show, compare, plot archived runs (python -m src.results)
   utils/
     config.py              Loading config.yaml, ConfigError
     emulators.py           Starting emulators and waiting until they accept connections
@@ -204,7 +244,8 @@ they must agree. Measurement `i` starts at `i / frequency` seconds, so 20 measur
 | Key | Meaning |
 |---|---|
 | `statistical_metrics` | which metrics the report shows: any of `mean`, `median`, `stdev`, `min`, `max`, `relative_spread`; empty or missing means all. All metrics are always computed and archived. |
-| `visualization` | reserved for plots; not used yet |
+| `visualization.enabled` | whether `python -m src.run` also saves a plot of every archived run (needs `requirements-plot.txt`); default `true` |
+| `visualization.plot_types` | panels of a single-run plot: any of `values`, `histogram`, `response_time`, `timing`; empty or missing means all |
 
 ### `result_management`
 
@@ -252,6 +293,7 @@ a warning. When a run is loaded, its metrics are recomputed from the raw measure
 python -m src.results list [--ammeter NAME]       # all runs, newest first
 python -m src.results show RUN_ID                 # metadata and full report of one run
 python -m src.results compare RUN_ID RUN_ID ...   # metrics side by side, change of the last run vs the first
+python -m src.results plot RUN_ID [RUN_ID ...]    # PNG of one run, or a comparison (see Plots)
 python -m src.results --dir FOLDER ...            # another archive folder
 ```
 
@@ -282,7 +324,7 @@ and it checks that the emulators behave as `docs/ORIGINAL_README.md` describes, 
 ### Running the tests
 
 ```sh
-pip install -r requirements-dev.txt          # adds pytest and pytest-cov; not needed to use the framework
+pip install -r requirements-dev.txt          # adds matplotlib, pytest and pytest-cov; not needed to use the framework
 pytest                                       # all tests, a few seconds
 pytest -m "not integration"                  # only the fast unit tests, without sockets
 pytest --cov=src --cov=Ammeters --cov-report=term-missing   # with line coverage
@@ -299,6 +341,7 @@ pytest --cov=src --cov=Ammeters --cov-report=term-missing   # with line coverage
 | `test_results_cli.py` | `list`, `show`, `compare` output and exit codes |
 | `test_config.py` | `config.yaml` matches the assignment; every invalid setting; loading and starting emulators |
 | `test_emulators.py` | regression tests for the fixes in the provided emulators; emulator behaviour as documented |
+| `test_plots.py` | plots are written in both themes, also for failed and late measurements; settings; a missing matplotlib gives a clear message |
 | `test_error_simulation.py` | each simulated fault reaches the framework as the right failure; probabilities, seeds, config errors, archiving |
 | `test_end_to_end.py` | the whole path from a config to the archive; `sample_results/` stays readable by the current code |
 
@@ -341,4 +384,6 @@ macOS with Python 3.9 and 3.14 on every push (`.github/workflows/tests.yml`).
 
 - Python 3.9 or newer, any operating system.
 - To use the framework: **PyYAML** (`requirements.txt`). Everything else is the Python standard library.
-- To run the tests: **pytest** and **pytest-cov** (`requirements-dev.txt`).
+- For plots (optional): **matplotlib** (`requirements-plot.txt`); it brings about 13 more packages (numpy among
+  them), which is why it is not required.
+- To run the tests: **pytest** and **pytest-cov**, plus matplotlib so the plots are tested too (`requirements-dev.txt`).

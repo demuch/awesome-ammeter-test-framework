@@ -1,0 +1,328 @@
+{
+  "format_version": 1,
+  "run_id": "20261107-101735-circutor-944b4545",
+  "started_at": "2026-11-07T10:17:35.734241+00:00",
+  "ammeter": {
+    "name": "circutor",
+    "port": 5002,
+    "command": "MEASURE_CIRCUTOR -get_measurement",
+    "host": "localhost",
+    "timeout": 5.0,
+    "emulator": "Ammeters.Circutor_Ammeter.CircutorAmmeter",
+    "simulate_errors": {
+      "error_reply": 0.0,
+      "garbage": 0.0,
+      "no_reply": 0.0,
+      "slow_reply": 0.15,
+      "slow_reply_s": 0.3,
+      "seed": 42
+    }
+  },
+  "environment": {
+    "python": "3.9.6",
+    "platform": "macOS-15.7.7-arm64-arm-64bit",
+    "code_version": "f564a95"
+  },
+  "summary": {
+    "success_rate": 1.0,
+    "values": {
+      "count": 20,
+      "mean": 0.030278342515362284,
+      "median": 0.03143990291418806,
+      "stdev": 0.01829479905484336,
+      "min": 0.006696058602200419,
+      "max": 0.06306201863818517,
+      "relative_spread": 0.6042206255365911
+    },
+    "response_time": {
+      "count": 20,
+      "mean": 0.07658367704999995,
+      "median": 0.0008772079999999072,
+      "stdev": 0.13459436230507812,
+      "min": 0.00048158300000000764,
+      "max": 0.3064631250000005,
+      "relative_spread": 1.7574810650212598
+    },
+    "timing": {
+      "actual_frequency_hz": 6.944945983262849,
+      "mean_lag_s": 0.044621458199999936,
+      "max_lag_s": 0.2091541250000002,
+      "late_count": 4,
+      "min_interval_s": 0.09644758399999986,
+      "max_interval_s": 0.30653783300000015,
+      "schedule_shift_s": 0.8319191669999995
+    }
+  },
+  "series": {
+    "ammeter": "circutor",
+    "config": {
+      "count": 20,
+      "duration_s": 2.0,
+      "frequency_hz": 10.0
+    },
+    "started_at": 1794046655.734241,
+    "samples": [
+      {
+        "index": 0,
+        "scheduled_s": 0.0,
+        "started_s": 2.0419999993137594e-06,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046655.7342458,
+          "value": 0.006696058602200419,
+          "error": null,
+          "duration_s": 0.0007322919999994681
+        }
+      },
+      {
+        "index": 1,
+        "scheduled_s": 0.1,
+        "started_s": 0.10503224999999983,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046655.8392909,
+          "value": 0.043860520830803544,
+          "error": null,
+          "duration_s": 0.3037807500000005
+        }
+      },
+      {
+        "index": 2,
+        "scheduled_s": 0.2,
+        "started_s": 0.40886912499999983,
+        "late": true,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046656.143111,
+          "value": 0.027496289263606585,
+          "error": null,
+          "duration_s": 0.0006786249999999328
+        }
+      },
+      {
+        "index": 3,
+        "scheduled_s": 0.5088682920000002,
+        "started_s": 0.5138907079999999,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046656.248137,
+          "value": 0.03874078489295523,
+          "error": null,
+          "duration_s": 0.000754458000000291
+        }
+      },
+      {
+        "index": 4,
+        "scheduled_s": 0.6088682920000001,
+        "started_s": 0.6103382919999998,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046656.344599,
+          "value": 0.01621766199107129,
+          "error": null,
+          "duration_s": 0.001231250000000017
+        }
+      },
+      {
+        "index": 5,
+        "scheduled_s": 0.7088682920000002,
+        "started_s": 0.7129040419999999,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046656.4471512,
+          "value": 0.008766673957042979,
+          "error": null,
+          "duration_s": 0.0007061249999997798
+        }
+      },
+      {
+        "index": 6,
+        "scheduled_s": 0.8088682920000001,
+        "started_s": 0.8139029170000001,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046656.548154,
+          "value": 0.05435203379386766,
+          "error": null,
+          "duration_s": 0.0006762079999997894
+        }
+      },
+      {
+        "index": 7,
+        "scheduled_s": 0.9088682920000002,
+        "started_s": 0.9136606249999994,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046656.6479099,
+          "value": 0.010199332162055479,
+          "error": null,
+          "duration_s": 0.30197387499999984
+        }
+      },
+      {
+        "index": 8,
+        "scheduled_s": 1.0088682920000003,
+        "started_s": 1.2156674999999995,
+        "late": true,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046656.9499059,
+          "value": 0.049050187365656125,
+          "error": null,
+          "duration_s": 0.0010530409999995882
+        }
+      },
+      {
+        "index": 9,
+        "scheduled_s": 1.315666917,
+        "started_s": 1.3162301249999997,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046657.0504808,
+          "value": 0.011572993763834982,
+          "error": null,
+          "duration_s": 0.3064631250000005
+        }
+      },
+      {
+        "index": 10,
+        "scheduled_s": 1.415666917,
+        "started_s": 1.6227679579999998,
+        "late": true,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046657.357006,
+          "value": 0.008666885211526962,
+          "error": null,
+          "duration_s": 0.0009999579999995234
+        }
+      },
+      {
+        "index": 11,
+        "scheduled_s": 1.7227659579999997,
+        "started_s": 1.7268219999999994,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046657.461069,
+          "value": 0.0538809963028072,
+          "error": null,
+          "duration_s": 0.0005589170000002142
+        }
+      },
+      {
+        "index": 12,
+        "scheduled_s": 1.8227659579999995,
+        "started_s": 1.8273270419999994,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046657.561574,
+          "value": 0.017089346141321505,
+          "error": null,
+          "duration_s": 0.30455045899999966
+        }
+      },
+      {
+        "index": 13,
+        "scheduled_s": 1.9227659579999996,
+        "started_s": 2.131920083,
+        "late": true,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046657.866156,
+          "value": 0.04353373832040579,
+          "error": null,
+          "duration_s": 0.00048158300000000764
+        }
+      },
+      {
+        "index": 14,
+        "scheduled_s": 2.231919166999999,
+        "started_s": 2.236770625,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046657.971015,
+          "value": 0.06306201863818517,
+          "error": null,
+          "duration_s": 0.0015734169999994663
+        }
+      },
+      {
+        "index": 15,
+        "scheduled_s": 2.3319191669999997,
+        "started_s": 2.334057292,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046658.0683,
+          "value": 0.03939396962855543,
+          "error": null,
+          "duration_s": 0.0005682080000006806
+        }
+      },
+      {
+        "index": 16,
+        "scheduled_s": 2.4319191669999993,
+        "started_s": 2.436934417,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046658.1711738,
+          "value": 0.04242470541853685,
+          "error": null,
+          "duration_s": 0.0006765839999998136
+        }
+      },
+      {
+        "index": 17,
+        "scheduled_s": 2.5319191669999994,
+        "started_s": 2.536946125,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046658.27119,
+          "value": 0.03058646623588564,
+          "error": null,
+          "duration_s": 0.0006512909999996097
+        }
+      },
+      {
+        "index": 18,
+        "scheduled_s": 2.6319191669999995,
+        "started_s": 2.636938,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046658.37118,
+          "value": 0.007682848194436329,
+          "error": null,
+          "duration_s": 0.0013305830000005514
+        }
+      },
+      {
+        "index": 19,
+        "scheduled_s": 2.731919166999999,
+        "started_s": 2.7358044579999996,
+        "late": false,
+        "measurement": {
+          "ammeter": "circutor",
+          "timestamp": 1794046658.4700558,
+          "value": 0.03229333959249048,
+          "error": null,
+          "duration_s": 0.30223279199999986
+        }
+      }
+    ],
+    "schedule_shift_s": 0.8319191669999995
+  }
+}

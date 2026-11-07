@@ -56,4 +56,4 @@ def test_sample_results_in_repository_are_readable():
                                cwd=PROJECT_ROOT, capture_output=True, text=True, timeout=60)
     assert completed.returncode == 0, completed.stderr
     assert completed.stderr == "", completed.stderr  # No skipped (unreadable) files
-    assert len(completed.stdout.splitlines()) == 1 + 7  # Header and seven runs
+    assert len(completed.stdout.splitlines()) == 1 + 10  # Header and ten runs

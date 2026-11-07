@@ -15,4 +15,6 @@ htmlcov/
 .DS_Store
 
 # Runtime output (logs and archived runs); examples are in sample_results/
+# Plots drawn from the sample runs by trying the README commands (sample_results/plots/ is kept)
+sample_results/*.png
 results/
