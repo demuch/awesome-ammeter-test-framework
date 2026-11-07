@@ -126,10 +126,10 @@ def test_timing_stats_of_one_measurement(clock):
 
 @pytest.mark.integration
 def test_real_time_sampling_with_emulator(emulator):
-    """With the real clock and a real emulator the series is complete and close to the planned frequency."""
+    """With the real clock, real sleep and a real emulator the series is complete and never starts early."""
     series = sample(emulator("greenlee"), SamplingConfig.from_values(count=5, frequency_hz=10))
     assert len(series.values) == 5
-    # No assertion on late measurements: on a loaded machine (CI macOS VMs wake up to about 75 ms late) a start
-    # can legitimately miss its moment. How late measurements are handled is tested exactly with the fake clock.
-    # Generous tolerance for the same reason
-    assert series.timing.actual_frequency_hz == pytest.approx(10, rel=0.25)
+    # A loaded machine can only make measurements late, never early. How late is not asserted: on shared CI
+    # machines it varied from 0.1 ms to over 100 ms (a frequency of 7.2 instead of 10 Hz was seen on macOS).
+    # The schedule itself, late measurements and the shift are tested exactly with the fake clock above.
+    assert all(s.started_s >= s.scheduled_s - 1e-6 for s in series.samples)
