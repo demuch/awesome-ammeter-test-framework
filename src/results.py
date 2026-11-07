@@ -7,6 +7,7 @@ Usage (from the project root)::
     python -m src.results show RUN_ID
     python -m src.results compare RUN_ID RUN_ID [RUN_ID ...]
     python -m src.results plot RUN_ID [RUN_ID ...] [--output FILE.png] [--theme light|dark]
+    python -m src.results assess RUN_ID [RUN_ID ...]
     python -m src.results --dir sample_results list
 
 A RUN_ID may be shortened to any unique beginning, like a git commit hash.
@@ -18,6 +19,7 @@ from typing import Callable, List, Optional, Sequence, Tuple
 
 from Ammeters.error_simulation import FAULTS, ErrorSimulation
 from src.testing.analysis import format_report
+from src.testing.assessment import assess, format_assessment
 from src.testing.archive import ArchiveError, ResultArchive, RunRecord, archive_settings_from_config
 from src.testing.plots import PlotError, plot_comparison, plot_run, plot_types_from_config
 from src.utils.config import DEFAULT_CONFIG_PATH, ConfigError, load_config
@@ -48,7 +50,7 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser = argparse.ArgumentParser(prog="python -m src.results", description="View and compare archived test runs.")
     parser.add_argument("--dir", type=Path,
                         help="archive folder (default: result_management.results_dir in config.yaml)")
-    commands = parser.add_subparsers(dest="command", required=True, metavar="{list,show,compare,plot}")
+    commands = parser.add_subparsers(dest="command", required=True, metavar="{list,show,compare,plot,assess}")
     list_parser = commands.add_parser("list", help="list saved runs, newest first")
     list_parser.add_argument("--ammeter", help="only runs of this ammeter")
     show_parser = commands.add_parser("show", help="show the full report of one run")
@@ -59,6 +61,9 @@ def main(argv: Optional[List[str]] = None) -> int:
     plot_parser.add_argument("run_ids", nargs="+", metavar="run_id", help="one run, or several to compare")
     plot_parser.add_argument("--output", type=Path, help="PNG file (default: next to the run in the archive)")
     plot_parser.add_argument("--theme", choices=("light", "dark"), default="light", help="colors (default: light)")
+    assess_parser = commands.add_parser("assess", help="rank ammeters by reliability, with confidence intervals")
+    assess_parser.add_argument("run_ids", nargs="+", metavar="run_id",
+                               help="runs to assess; several runs of one ammeter are pooled")
     args = parser.parse_args(argv)
     if args.command == "compare" and len(args.run_ids) < 2:
         compare_parser.error("give at least two runs to compare")
@@ -75,8 +80,11 @@ def main(argv: Optional[List[str]] = None) -> int:
             print(_show(archive.load(args.run_id)))
         elif args.command == "compare":
             print(_compare([archive.load(run_id) for run_id in args.run_ids]))
-        else:
+        elif args.command == "plot":
             print(f"Saved plot to {_plot(archive, args.run_ids, args.output, args.theme)}")
+        else:
+            records = [archive.load(run_id) for run_id in args.run_ids]
+            print(format_assessment(assess(records), len(records)))
     except (ArchiveError, ConfigError, PlotError) as e:
         print(f"Error: {e}", file=sys.stderr)
         return 1
