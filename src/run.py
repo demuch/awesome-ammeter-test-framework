@@ -13,7 +13,7 @@ from pathlib import Path
 from typing import List, Optional
 
 from src.testing.archive import ArchiveError
-from src.testing.plots import PlotError, plot_run
+from src.testing.plots import MatplotlibMissingError, PlotError, plot_run
 from src.testing.sampling import COUNT_KEY, DURATION_KEY, FREQUENCY_KEY, SamplingConfig
 from src.testing.test_framework import AmmeterTestFramework
 from src.utils.config import DEFAULT_CONFIG_PATH, ConfigError
@@ -100,10 +100,13 @@ def main(argv: Optional[List[str]] = None) -> int:
                 try:
                     path = plot_run(record, framework.archive.directory / f"{record.run_id}.png", framework.plot_types)
                     log.info(f"Saved plot {path.name}")
-                except PlotError as e:
+                except MatplotlibMissingError as e:
                     # Plots are optional: without matplotlib the test itself is complete
                     log.info(f"Plots skipped: {e}")
                     plot = False
+                except PlotError as e:
+                    # The run is already archived; only its plot is missing
+                    log.warning(f"Could not save the plot of {name}: {e}")
 
     for name, result in results.items():
         print(f"\nResults for {name}:")

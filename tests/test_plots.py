@@ -69,6 +69,14 @@ def test_comparison_of_runs_without_values_is_an_error(tmp_path, clock):
         plot_comparison(records, tmp_path / "compare.png")
 
 
+def test_unwritable_file_is_a_plot_error(tmp_path, clock):
+    """A file that cannot be written is a PlotError with the path, not an OSError with a traceback."""
+    pytest.importorskip("matplotlib")
+    (tmp_path / "a_file").write_text("")  # A file where the folder of the plot should be
+    with pytest.raises(PlotError, match="cannot write plot"):
+        plot_run(make_record(clock), tmp_path / "a_file" / "run.png")
+
+
 def test_missing_matplotlib_gives_install_hint(tmp_path, clock, no_matplotlib):
     """Without matplotlib the error says what to install; the rest of the framework does not need it."""
     with pytest.raises(PlotError, match="pip install -r requirements-plot.txt"):
@@ -124,6 +132,17 @@ def test_results_plot_without_matplotlib_exits_with_1(tmp_path, clock, capsys, n
     assert "requirements-plot.txt" in capsys.readouterr().err
 
 
+def test_results_plot_to_unwritable_file_exits_with_1(tmp_path, clock, capsys):
+    """The plot command reports a file it cannot write and exits with 1, without a traceback."""
+    pytest.importorskip("matplotlib")
+    record = make_record(clock)
+    ResultArchive(tmp_path).save(record)
+    (tmp_path / "a_file").write_text("")
+    assert results_main(["--dir", str(tmp_path), "plot", record.run_id, "--output", str(tmp_path / "a_file" / "p.png")]) == 1
+    err = capsys.readouterr().err
+    assert "cannot write plot" in err and "Traceback" not in err
+
+
 @pytest.fixture
 def run_config(tmp_path, monkeypatch):
     """
@@ -166,3 +185,14 @@ def test_run_without_matplotlib_skips_plots_but_completes(tmp_path, run_config, 
     assert "Plots skipped" in capsys.readouterr().err
     assert len(list((tmp_path / "runs").glob("*.json"))) == 1
     assert list((tmp_path / "runs").glob("*.png")) == []
+
+
+@pytest.mark.integration
+def test_run_keeps_the_archived_run_when_its_plot_cannot_be_written(tmp_path, run_config, capsys, monkeypatch):
+    """A plot that cannot be written is a warning: the run is archived and the exit code stays 0."""
+    def failing_plot(*args, **kwargs):
+        raise PlotError("cannot write plot x.png: disk full")
+    monkeypatch.setattr("src.run.plot_run", failing_plot)
+    assert run_main(["--config", str(run_config(True))]) == 0
+    assert "[WARNING]" in capsys.readouterr().err
+    assert len(list((tmp_path / "runs").glob("*.json"))) == 1

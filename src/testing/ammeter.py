@@ -135,8 +135,9 @@ def _ammeter_from_settings(name: str, settings: Any) -> Ammeter:
         raise ConfigError(f"Ammeter '{name}': 'host' must be a non-empty string, got {host!r}")
 
     timeout = settings.get("timeout", DEFAULT_TIMEOUT_S)
-    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or timeout <= 0:
-        raise ConfigError(f"Ammeter '{name}': 'timeout' must be a positive number of seconds, got {timeout!r}")
+    # isfinite: '.inf' would crash the socket, and '.nan' passes "<= 0" because every comparison with nan is false
+    if isinstance(timeout, bool) or not isinstance(timeout, (int, float)) or not math.isfinite(timeout) or timeout <= 0:
+        raise ConfigError(f"Ammeter '{name}': 'timeout' must be a finite positive number of seconds, got {timeout!r}")
 
     emulator = settings.get("emulator")
     if emulator is not None:

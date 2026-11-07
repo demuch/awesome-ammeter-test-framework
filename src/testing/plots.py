@@ -17,7 +17,11 @@ INSTALL_HINT = "plots need matplotlib: pip install -r requirements-plot.txt"
 
 
 class PlotError(Exception):
-    """A plot cannot be drawn: matplotlib is missing or the runs have nothing to plot."""
+    """A plot cannot be drawn or written: matplotlib is missing, the runs have nothing to plot, or the file fails."""
+
+
+class MatplotlibMissingError(PlotError):
+    """matplotlib is not installed; an expected situation, since plots are optional."""
 
 
 @dataclass(frozen=True)
@@ -204,12 +208,12 @@ def plot_comparison(records: Sequence[RunRecord], path: Path, theme: str = "ligh
 def _pyplot():
     """
     :returns: ``matplotlib.pyplot`` with the non-interactive Agg backend (writes files, needs no display).
-    :raises PlotError: matplotlib is not installed.
+    :raises MatplotlibMissingError: matplotlib is not installed.
     """
     try:
         import matplotlib
     except ImportError as e:
-        raise PlotError(INSTALL_HINT) from e
+        raise MatplotlibMissingError(INSTALL_HINT) from e
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
     return plt
@@ -256,14 +260,19 @@ def _legend(ax, colors: Theme) -> None:
 
 def _save(fig, path: Path) -> Path:
     """
-    :param fig: Figure to write.
+    :param fig: Figure to write; it is closed in any case, so failed plots do not pile up in memory.
     :param path: PNG file; its folder is created if needed.
     :returns: ``path``.
+    :raises PlotError: The folder cannot be created or the file cannot be written.
     """
     import matplotlib.pyplot as plt
     path = Path(path)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    fig.tight_layout()
-    fig.savefig(path, dpi=130, facecolor=fig.get_facecolor())
-    plt.close(fig)
+    try:
+        path.parent.mkdir(parents=True, exist_ok=True)
+        fig.tight_layout()
+        fig.savefig(path, dpi=130, facecolor=fig.get_facecolor())
+    except OSError as e:
+        raise PlotError(f"cannot write plot {path}: {e}") from e
+    finally:
+        plt.close(fig)
     return path
