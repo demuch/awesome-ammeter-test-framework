@@ -54,7 +54,7 @@ Timing         10 Hz planned, 9.98 Hz actual; lag mean 2.7 ms, max 5.0 ms; 0 lat
 Options change a single run without editing the config:
 
 ```sh
-python -m src.run --ammeter greenlee              # only one ammeter (repeat --ammeter for several)
+python -m src.run --ammeter greenlee entes        # only these ammeters
 python -m src.run --count 100 --frequency 50      # any two of --count, --duration, --frequency
 python -m src.run --no-save                       # do not archive this run
 python -m src.run --config other.yaml             # another configuration file

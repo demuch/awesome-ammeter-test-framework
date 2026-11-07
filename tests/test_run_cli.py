@@ -42,10 +42,14 @@ def test_runs_every_ammeter_archives_and_reports(config, capsys):
     assert len(list(runs.glob("*.json"))) == 3
 
 
-def test_only_selected_ammeters(config, capsys):
-    """--ammeter limits the run to the named ammeters."""
+@pytest.mark.parametrize("options", [
+    ["--ammeter", "entes", "circutor"],
+    ["--ammeter", "entes", "--ammeter", "circutor"],
+], ids=["one-option", "repeated-option"])
+def test_only_selected_ammeters(config, capsys, options):
+    """--ammeter limits the run to the named ammeters, given after one option or by repeating it."""
     path, runs = config
-    assert main(["--config", str(path), "--ammeter", "entes", "--ammeter", "circutor"]) == 0
+    assert main(["--config", str(path), *options]) == 0
     out = capsys.readouterr().out
     assert "Results for entes" in out and "Results for circutor" in out and "greenlee" not in out
     assert len(list(runs.glob("*.json"))) == 2

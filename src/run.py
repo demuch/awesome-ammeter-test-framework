@@ -33,8 +33,9 @@ def main(argv: Optional[List[str]] = None) -> int:
                                      description="Run the configured test on ammeters and archive the runs.")
     parser.add_argument("--config", type=Path, default=DEFAULT_CONFIG_PATH,
                         help="configuration file (default: config/config.yaml in the project)")
-    parser.add_argument("--ammeter", action="append", metavar="NAME",
-                        help="test only this ammeter; repeat for several (default: every ammeter in the config)")
+    # nargs="+" with "extend" accepts both "--ammeter a b" and "--ammeter a --ammeter b"
+    parser.add_argument("--ammeter", nargs="+", action="extend", metavar="NAME",
+                        help="test only these ammeters (default: every ammeter in the config)")
     sampling = parser.add_argument_group(
         "sampling", "give any two of these to replace testing.sampling from the config for this run")
     sampling.add_argument("--count", type=int, help="number of measurements")
