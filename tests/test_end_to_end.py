@@ -1,4 +1,4 @@
-"""End-to-end tests: the whole path from config.yaml to the archive, as examples/run_tests.py runs it."""
+"""End-to-end tests: the whole path from config.yaml to the archive, as python -m src.run runs it."""
 import subprocess
 import sys
 

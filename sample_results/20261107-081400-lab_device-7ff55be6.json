@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "run_id": "20261105-185442-lab_device-1dc2280a",
-  "started_at": "2026-11-05T18:54:42.372382+00:00",
+  "run_id": "20261107-081400-lab_device-7ff55be6",
+  "started_at": "2026-11-07T08:14:00.184311+00:00",
   "ammeter": {
     "name": "lab_device",
     "port": 6000,
@@ -13,7 +13,7 @@
   "environment": {
     "python": "3.9.6",
     "platform": "macOS-15.7.7-arm64-arm-64bit",
-    "code_version": "6ca00d1"
+    "code_version": "0d7fae7"
   },
   "summary": {
     "success_rate": 0.0,
@@ -28,20 +28,20 @@
     },
     "response_time": {
       "count": 20,
-      "mean": 0.0004983707999999823,
-      "median": 0.00041108299999997877,
-      "stdev": 0.0002504668763784918,
-      "min": 0.0003142499999999604,
-      "max": 0.0014457499999999956,
-      "relative_spread": 0.5025713311825265
+      "mean": 0.0005853917999999861,
+      "median": 0.0004838334999999194,
+      "stdev": 0.0003292076638114189,
+      "min": 0.00036104200000000586,
+      "max": 0.001684583999999989,
+      "relative_spread": 0.5623714985611803
     },
     "timing": {
-      "actual_frequency_hz": 9.994475637755235,
-      "mean_lag_s": 0.002641100400000003,
-      "max_lag_s": 0.005034750000000088,
+      "actual_frequency_hz": 9.99854385417221,
+      "mean_lag_s": 0.0031425083500000437,
+      "max_lag_s": 0.005030166999999919,
       "late_count": 0,
-      "min_interval_s": 0.09596166699999964,
-      "max_interval_s": 0.10346812499999997,
+      "min_interval_s": 0.09572004199999995,
+      "max_interval_s": 0.10347812500000009,
       "schedule_shift_s": 0.0
     }
   },
@@ -52,266 +52,266 @@
       "duration_s": 2.0,
       "frequency_hz": 10.0
     },
-    "started_at": 1793904882.372382,
+    "started_at": 1794039240.1843112,
     "samples": [
       {
         "index": 0,
         "scheduled_s": 0.0,
-        "started_s": 4.000000000004e-06,
+        "started_s": 7.5419999999992715e-06,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904882.372391,
+          "timestamp": 1794039240.184329,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0014457499999999956
+          "duration_s": 0.001684583999999989
         }
       },
       {
         "index": 1,
         "scheduled_s": 0.1,
-        "started_s": 0.10114358400000001,
+        "started_s": 0.10273837499999999,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904882.473544,
+          "timestamp": 1794039240.2870662,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.00035033299999998047
+          "duration_s": 0.00036104200000000586
         }
       },
       {
         "index": 2,
         "scheduled_s": 0.2,
-        "started_s": 0.20461170899999997,
+        "started_s": 0.203908083,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904882.577006,
+          "timestamp": 1794039240.3882308,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.00036166700000000995
+          "duration_s": 0.00047070799999998636
         }
       },
       {
         "index": 3,
         "scheduled_s": 0.3,
-        "started_s": 0.302994125,
+        "started_s": 0.301234417,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904882.675385,
+          "timestamp": 1794039240.485554,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0004117909999999947
+          "duration_s": 0.00039841699999998426
         }
       },
       {
         "index": 4,
         "scheduled_s": 0.4,
-        "started_s": 0.403051917,
+        "started_s": 0.404574958,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904882.775446,
+          "timestamp": 1794039240.588894,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.00041037499999996285
+          "duration_s": 0.0004202080000000885
         }
       },
       {
         "index": 5,
         "scheduled_s": 0.5,
-        "started_s": 0.501410334,
+        "started_s": 0.503815583,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904882.873802,
+          "timestamp": 1794039240.688133,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0003142499999999604
+          "duration_s": 0.0004166669999999817
         }
       },
       {
         "index": 6,
         "scheduled_s": 0.6,
-        "started_s": 0.603589542,
+        "started_s": 0.601813125,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904882.9759822,
+          "timestamp": 1794039240.786131,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.00032812500000001243
+          "duration_s": 0.0004129999999999967
         }
       },
       {
         "index": 7,
         "scheduled_s": 0.7,
-        "started_s": 0.705032,
+        "started_s": 0.703981167,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904883.077434,
+          "timestamp": 1794039240.8882968,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0005631249999999977
+          "duration_s": 0.0013300830000000374
         }
       },
       {
         "index": 8,
         "scheduled_s": 0.8,
-        "started_s": 0.805022417,
+        "started_s": 0.805021708,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904883.177421,
+          "timestamp": 1794039240.989345,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0004463330000000765
+          "duration_s": 0.0004489579999999993
         }
       },
       {
         "index": 9,
         "scheduled_s": 0.9,
-        "started_s": 0.905020167,
+        "started_s": 0.9050301669999999,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904883.277419,
+          "timestamp": 1794039241.0893471,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.00037125000000004515
+          "duration_s": 0.0005213330000000127
         }
       },
       {
         "index": 10,
         "scheduled_s": 1.0,
-        "started_s": 1.0019168340000002,
+        "started_s": 1.0018386670000001,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904883.374322,
+          "timestamp": 1794039241.186173,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0003737919999999839
+          "duration_s": 0.0006495829999999536
         }
       },
       {
         "index": 11,
         "scheduled_s": 1.1,
-        "started_s": 1.1050347500000002,
+        "started_s": 1.1016328750000002,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904883.477438,
+          "timestamp": 1794039241.285957,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.00053820800000004
+          "duration_s": 0.0005134589999999939
         }
       },
       {
         "index": 12,
         "scheduled_s": 1.2,
-        "started_s": 1.2009964169999998,
+        "started_s": 1.204856375,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904883.573405,
+          "timestamp": 1794039241.389166,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0003334999999999866
+          "duration_s": 0.0004169169999999056
         }
       },
       {
         "index": 13,
         "scheduled_s": 1.3,
-        "started_s": 1.3039064589999998,
+        "started_s": 1.305026,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904883.676307,
+          "timestamp": 1794039241.489345,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0004334169999999915
+          "duration_s": 0.00043095900000000853
         }
       },
       {
         "index": 14,
         "scheduled_s": 1.4,
-        "started_s": 1.4010205839999998,
+        "started_s": 1.403552708,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904883.773421,
+          "timestamp": 1794039241.587871,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0006072079999999147
+          "duration_s": 0.00047870799999993885
         }
       },
       {
         "index": 15,
         "scheduled_s": 1.5,
-        "started_s": 1.503265292,
+        "started_s": 1.500292667,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904883.875683,
+          "timestamp": 1794039241.6846201,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0006391249999999626
+          "duration_s": 0.0005857090000001008
         }
       },
       {
         "index": 16,
         "scheduled_s": 1.6,
-        "started_s": 1.600390209,
+        "started_s": 1.6037707920000002,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904883.972803,
+          "timestamp": 1794039241.788081,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.00040479199999987614
+          "duration_s": 0.000613291999999932
         }
       },
       {
         "index": 17,
         "scheduled_s": 1.7,
-        "started_s": 1.7020634590000001,
+        "started_s": 1.7049065,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904884.074473,
+          "timestamp": 1794039241.889218,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0007132499999999986
+          "duration_s": 0.0005081670000000038
         }
       },
       {
         "index": 18,
         "scheduled_s": 1.8,
-        "started_s": 1.801294,
+        "started_s": 1.8045642080000002,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904884.1737,
+          "timestamp": 1794039241.988875,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.00037491700000003014
+          "duration_s": 0.0005570829999999027
         }
       },
       {
         "index": 19,
         "scheduled_s": 1.9,
-        "started_s": 1.9010542090000002,
+        "started_s": 1.9002842500000001,
         "late": false,
         "measurement": {
           "ammeter": "lab_device",
-          "timestamp": 1793904884.27349,
+          "timestamp": 1794039242.0845902,
           "value": null,
           "error": "localhost:6000: ConnectionRefusedError(61, 'Connection refused')",
-          "duration_s": 0.0005462079999998259
+          "duration_s": 0.0004889589999999
         }
       }
     ],

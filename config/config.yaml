@@ -38,5 +38,5 @@ analysis:
 result_management:
   # Folder for archived runs, one JSON file per run; relative paths start at the project root.
   results_dir: results/runs
-  # Whether examples/run_tests.py saves every run to the archive.
+  # Whether python -m src.run saves every run to the archive (unless --no-save is given).
   save_results: true

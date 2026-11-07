@@ -1,0 +1,27 @@
+2026-11-07 10:13:54,341 [INFO] test_run: Testing greenlee ammeter...
+2026-11-07 10:13:56,252 [INFO] test_run: Saved greenlee run as 20261107-081354-greenlee-2a661cf5
+2026-11-07 10:13:56,252 [INFO] test_run: Testing entes ammeter...
+2026-11-07 10:13:58,162 [INFO] test_run: Saved entes run as 20261107-081356-entes-b071455c
+2026-11-07 10:13:58,162 [INFO] test_run: Testing circutor ammeter...
+2026-11-07 10:14:00,067 [INFO] test_run: Saved circutor run as 20261107-081358-circutor-5b78dfb3
+
+Results for greenlee:
+=== greenlee: 20 measurements, 20 ok, 0 failed (100%) ===
+Values (A)     mean 0.1356  median 0.09236  stdev 0.1458  min 0.03723  max 0.6908  relative_spread 107.5%
+Response time  mean 0.67 ms  median 0.62 ms  stdev 0.16 ms  min 0.38 ms  max 0.93 ms  relative_spread 23.5%
+Timing         10 Hz planned, 9.98 Hz actual; lag mean 2.7 ms, max 5.0 ms; 0 late, schedule shifted by 0.0 ms
+               interval between measurements 95.0-105.0 ms
+
+Results for entes:
+=== entes: 20 measurements, 20 ok, 0 failed (100%) ===
+Values (A)     mean 63.17  median 49.96  stdev 38.73  min 12.24  max 146.1  relative_spread 61.3%
+Response time  mean 0.70 ms  median 0.68 ms  stdev 0.14 ms  min 0.45 ms  max 0.93 ms  relative_spread 19.8%
+Timing         10 Hz planned, 10.00 Hz actual; lag mean 2.9 ms, max 5.1 ms; 0 late, schedule shifted by 0.0 ms
+               interval between measurements 95.0-103.5 ms
+
+Results for circutor:
+=== circutor: 20 measurements, 20 ok, 0 failed (100%) ===
+Values (A)     mean 0.02905  median 0.02942  stdev 0.0167  min 0.0082  max 0.06017  relative_spread 57.5%
+Response time  mean 0.67 ms  median 0.65 ms  stdev 0.15 ms  min 0.50 ms  max 1.10 ms  relative_spread 23.0%
+Timing         10 Hz planned, 10.00 Hz actual; lag mean 3.3 ms, max 5.2 ms; 0 late, schedule shifted by 0.0 ms
+               interval between measurements 95.8-105.0 ms

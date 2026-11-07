@@ -46,5 +46,5 @@ jobs:
       - name: Run main.py
         run: python main.py
 
-      - name: Run examples/run_tests.py
-        run: python examples/run_tests.py
+      - name: Run python -m src.run
+        run: python -m src.run

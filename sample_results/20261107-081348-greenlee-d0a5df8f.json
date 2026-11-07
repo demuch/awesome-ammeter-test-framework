@@ -1,7 +1,7 @@
 {
   "format_version": 1,
-  "run_id": "20261105-185436-greenlee-0940b6f8",
-  "started_at": "2026-11-05T18:54:36.538924+00:00",
+  "run_id": "20261107-081348-greenlee-d0a5df8f",
+  "started_at": "2026-11-07T08:13:48.486989+00:00",
   "ammeter": {
     "name": "greenlee",
     "port": 5000,
@@ -13,35 +13,35 @@
   "environment": {
     "python": "3.9.6",
     "platform": "macOS-15.7.7-arm64-arm-64bit",
-    "code_version": "6ca00d1"
+    "code_version": "0d7fae7"
   },
   "summary": {
     "success_rate": 1.0,
     "values": {
       "count": 20,
-      "mean": 0.25900094896065656,
-      "median": 0.17334877844602536,
-      "stdev": 0.22662209314301882,
-      "min": 0.019383704817013653,
-      "max": 0.8306632926241907,
-      "relative_spread": 0.8749855707186762
+      "mean": 0.5276076095377172,
+      "median": 0.11291495320473846,
+      "stdev": 1.2216051848801222,
+      "min": 0.025113674462650618,
+      "max": 5.43675412089781,
+      "relative_spread": 2.3153668802284266
     },
     "response_time": {
       "count": 20,
-      "mean": 0.0008399353000000213,
-      "median": 0.000587270499999959,
-      "stdev": 0.0005400597020178389,
-      "min": 0.0004761250000000494,
-      "max": 0.0022697499999999593,
-      "relative_spread": 0.6429777412829597
+      "mean": 0.0007106936999999932,
+      "median": 0.0006795629999999386,
+      "stdev": 0.0002115614020351285,
+      "min": 0.0003032919999999967,
+      "max": 0.0010084169999999837,
+      "relative_spread": 0.29768295685628077
     },
     "timing": {
-      "actual_frequency_hz": 9.976493543436538,
-      "mean_lag_s": 0.0036311288499999385,
-      "max_lag_s": 0.005031958000000003,
+      "actual_frequency_hz": 9.999165201273657,
+      "mean_lag_s": 0.0030738895499999807,
+      "max_lag_s": 0.005029207999999841,
       "late_count": 0,
-      "min_interval_s": 0.09659941699999997,
-      "max_interval_s": 0.10406058300000001,
+      "min_interval_s": 0.09504087499999996,
+      "max_interval_s": 0.10502308300000002,
       "schedule_shift_s": 0.0
     }
   },
@@ -52,266 +52,266 @@
       "duration_s": 2.0,
       "frequency_hz": 10.0
     },
-    "started_at": 1793904876.538924,
+    "started_at": 1794039228.486989,
     "samples": [
       {
         "index": 0,
         "scheduled_s": 0.0,
-        "started_s": 5.875000000002406e-06,
+        "started_s": 1.6669999999968654e-06,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904876.538933,
-          "value": 0.11379386750962925,
+          "timestamp": 1794039228.486997,
+          "value": 0.06039947135143632,
           "error": null,
-          "duration_s": 0.0004919169999999945
+          "duration_s": 0.0003032919999999967
         }
       },
       {
         "index": 1,
         "scheduled_s": 0.1,
-        "started_s": 0.10406645800000001,
+        "started_s": 0.10502475000000001,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904876.6430101,
-          "value": 0.5102177576356602,
+          "timestamp": 1794039228.592026,
+          "value": 0.02563295104353225,
           "error": null,
-          "duration_s": 0.0005346669999999887
+          "duration_s": 0.00048695800000000955
         }
       },
       {
         "index": 2,
         "scheduled_s": 0.2,
-        "started_s": 0.20211625,
+        "started_s": 0.20006562499999997,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904876.7410529,
-          "value": 0.16426387829285094,
+          "timestamp": 1794039228.687059,
+          "value": 0.10462467842421318,
           "error": null,
-          "duration_s": 0.0006657910000000267
+          "duration_s": 0.0004477079999999911
         }
       },
       {
         "index": 3,
         "scheduled_s": 0.3,
-        "started_s": 0.303749541,
+        "started_s": 0.301882042,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904876.842695,
-          "value": 0.3898623301817753,
+          "timestamp": 1794039228.7888799,
+          "value": 0.13854458617551163,
           "error": null,
-          "duration_s": 0.0006037080000000361
+          "duration_s": 0.0005927499999999752
         }
       },
       {
         "index": 4,
         "scheduled_s": 0.4,
-        "started_s": 0.40178241600000003,
+        "started_s": 0.401122,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904876.940716,
-          "value": 0.6896121198166665,
+          "timestamp": 1794039228.8881202,
+          "value": 0.09575822388436879,
           "error": null,
-          "duration_s": 0.0005988329999999653
+          "duration_s": 0.0009776670000000154
         }
       },
       {
         "index": 5,
         "scheduled_s": 0.5,
-        "started_s": 0.502496208,
+        "started_s": 0.5047067080000001,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904877.041437,
-          "value": 0.8306632926241907,
+          "timestamp": 1794039228.991703,
+          "value": 0.025113674462650618,
           "error": null,
-          "duration_s": 0.0006977500000000525
+          "duration_s": 0.0007990410000000558
         }
       },
       {
         "index": 6,
         "scheduled_s": 0.6,
-        "started_s": 0.605031958,
+        "started_s": 0.604725375,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904877.143971,
-          "value": 0.18874570898595755,
+          "timestamp": 1794039229.0917199,
+          "value": 0.07818778213049084,
           "error": null,
-          "duration_s": 0.0005607910000000604
+          "duration_s": 0.0008254169999999394
         }
       },
       {
         "index": 7,
         "scheduled_s": 0.7,
-        "started_s": 0.704117166,
+        "started_s": 0.705028667,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904877.243057,
-          "value": 0.04796443842104713,
+          "timestamp": 1794039229.1920252,
+          "value": 0.06231088203398116,
           "error": null,
-          "duration_s": 0.000565958000000033
+          "duration_s": 0.000930541000000007
         }
       },
       {
         "index": 8,
         "scheduled_s": 0.8,
-        "started_s": 0.804234541,
+        "started_s": 0.800510083,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904877.3431811,
-          "value": 0.06997887332298287,
+          "timestamp": 1794039229.287504,
+          "value": 0.5833689900514614,
           "error": null,
-          "duration_s": 0.000777625000000004
+          "duration_s": 0.0005466249999999118
         }
       },
       {
         "index": 9,
         "scheduled_s": 0.9,
-        "started_s": 0.900833958,
+        "started_s": 0.9031106670000001,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904877.439775,
-          "value": 0.16757419865169387,
+          "timestamp": 1794039229.3901,
+          "value": 0.0735513100448765,
           "error": null,
-          "duration_s": 0.0005209170000000096
+          "duration_s": 0.00042008300000007104
         }
       },
       {
         "index": 10,
         "scheduled_s": 1.0,
-        "started_s": 1.0033146249999998,
+        "started_s": 1.004036333,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904877.542326,
-          "value": 0.1261060586330756,
+          "timestamp": 1794039229.491028,
+          "value": 1.3127539792783744,
           "error": null,
-          "duration_s": 0.002118500000000134
+          "duration_s": 0.000632959000000044
         }
       },
       {
         "index": 11,
         "scheduled_s": 1.1,
-        "started_s": 1.1050148329999998,
+        "started_s": 1.104954375,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904877.643957,
-          "value": 0.3419253565402229,
+          "timestamp": 1794039229.591945,
+          "value": 0.19194895332050854,
           "error": null,
-          "duration_s": 0.0015082500000000998
+          "duration_s": 0.000671166999999917
         }
       },
       {
         "index": 12,
         "scheduled_s": 1.2,
-        "started_s": 1.205013,
+        "started_s": 1.2032684999999999,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904877.7439559,
-          "value": 0.17912335824035688,
+          "timestamp": 1794039229.690263,
+          "value": 0.38013385146536754,
           "error": null,
-          "duration_s": 0.0004761250000000494
+          "duration_s": 0.0010084169999999837
         }
       },
       {
         "index": 13,
         "scheduled_s": 1.3,
-        "started_s": 1.3050124159999998,
+        "started_s": 1.3050292079999999,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904877.843955,
-          "value": 0.5468745802987981,
+          "timestamp": 1794039229.792021,
+          "value": 1.410867210851764,
           "error": null,
-          "duration_s": 0.0005757079999999526
+          "duration_s": 0.0010048750000000162
         }
       },
       {
         "index": 14,
         "scheduled_s": 1.4,
-        "started_s": 1.4050190409999999,
+        "started_s": 1.40058375,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904877.943965,
-          "value": 0.2732457049727563,
+          "timestamp": 1794039229.887582,
+          "value": 0.09138265702006651,
           "error": null,
-          "duration_s": 0.0005538339999999753
+          "duration_s": 0.0009449160000001289
         }
       },
       {
         "index": 15,
         "scheduled_s": 1.5,
-        "started_s": 1.504135208,
+        "started_s": 1.50456875,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904878.043118,
-          "value": 0.05953602494753919,
+          "timestamp": 1794039229.99156,
+          "value": 0.12511664790317198,
           "error": null,
-          "duration_s": 0.0014135829999999405
+          "duration_s": 0.0008375000000000465
         }
       },
       {
         "index": 16,
         "scheduled_s": 1.6,
-        "started_s": 1.605019958,
+        "started_s": 1.603402708,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904878.1439638,
-          "value": 0.0749788364360046,
+          "timestamp": 1794039230.090392,
+          "value": 0.14715384937186987,
           "error": null,
-          "duration_s": 0.0005740000000000745
+          "duration_s": 0.0006879589999999602
         }
       },
       {
         "index": 17,
         "scheduled_s": 1.7,
-        "started_s": 1.7050282499999998,
+        "started_s": 1.704267333,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904878.24398,
-          "value": 0.019383704817013653,
+          "timestamp": 1794039230.191254,
+          "value": 0.08734314305762543,
           "error": null,
-          "duration_s": 0.0022697499999999593
+          "duration_s": 0.0005724579999999424
         }
       },
       {
         "index": 18,
         "scheduled_s": 1.8,
-        "started_s": 1.80214825,
+        "started_s": 1.8050289579999999,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904878.341098,
-          "value": 0.24770132283589735,
+          "timestamp": 1794039230.292042,
+          "value": 0.12120522798526373,
           "error": null,
-          "duration_s": 0.0005479580000000706
+          "duration_s": 0.0008637080000000186
         }
       },
       {
         "index": 19,
         "scheduled_s": 1.9,
-        "started_s": 1.904482625,
+        "started_s": 1.900160292,
         "late": false,
         "measurement": {
           "ammeter": "greenlee",
-          "timestamp": 1793904878.443478,
-          "value": 0.13846756604901195,
+          "timestamp": 1794039230.387172,
+          "value": 5.43675412089781,
           "error": null,
-          "duration_s": 0.0007430409999999998
+          "duration_s": 0.000659832999999832
         }
       }
     ],

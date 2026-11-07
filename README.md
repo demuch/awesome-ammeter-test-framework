@@ -37,19 +37,33 @@ python main.py
 Run the configured test on every ammeter, archive the runs and print a report per ammeter:
 
 ```sh
-python examples/run_tests.py
+python -m src.run
 ```
 ```
-2026-11-05 20:54:36,538 [INFO] test_run_tests: Testing greenlee ammeter...
-2026-11-05 20:54:38,448 [INFO] test_run_tests: Saved greenlee run as 20261105-185436-greenlee-0940b6f8
+2026-11-07 10:13:54,341 [INFO] test_run: Testing greenlee ammeter...
+2026-11-07 10:13:56,252 [INFO] test_run: Saved greenlee run as 20261107-081354-greenlee-2a661cf5
 ...
 Results for greenlee:
 === greenlee: 20 measurements, 20 ok, 0 failed (100%) ===
-Values (A)     mean 0.259  median 0.1733  stdev 0.2266  min 0.01938  max 0.8307  relative_spread 87.5%
-Response time  mean 0.84 ms  median 0.59 ms  stdev 0.54 ms  min 0.48 ms  max 2.27 ms  relative_spread 64.3%
-Timing         10 Hz planned, 9.98 Hz actual; lag mean 3.6 ms, max 5.0 ms; 0 late, schedule shifted by 0.0 ms
-               interval between measurements 96.6-104.1 ms
+Values (A)     mean 0.1356  median 0.09236  stdev 0.1458  min 0.03723  max 0.6908  relative_spread 107.5%
+Response time  mean 0.67 ms  median 0.62 ms  stdev 0.16 ms  min 0.38 ms  max 0.93 ms  relative_spread 23.5%
+Timing         10 Hz planned, 9.98 Hz actual; lag mean 2.7 ms, max 5.0 ms; 0 late, schedule shifted by 0.0 ms
+               interval between measurements 95.0-105.0 ms
 ```
+
+Options change a single run without editing the config:
+
+```sh
+python -m src.run --ammeter greenlee              # only one ammeter (repeat --ammeter for several)
+python -m src.run --count 100 --frequency 50      # any two of --count, --duration, --frequency
+python -m src.run --no-save                       # do not archive this run
+python -m src.run --config other.yaml             # another configuration file
+python -m src.run --help
+```
+
+Exit codes: `0` every ammeter was tested; `1` a configuration error, an emulator that did not start or a run that
+could not be archived; `2` wrong usage. Failed measurements do not change the exit code: they are results of the
+test, shown in the report.
 
 List your archived runs, then look at the sample runs that come with the repository (a run ID can be shortened to
 any unique beginning):
@@ -57,8 +71,8 @@ any unique beginning):
 ```sh
 python -m src.results list
 python -m src.results --dir sample_results list
-python -m src.results --dir sample_results show 20261105-185442        # an ammeter that did not answer
-python -m src.results --dir sample_results compare 20261105-185430 20261105-185436
+python -m src.results --dir sample_results show 20261107-081400        # an ammeter that did not answer
+python -m src.results --dir sample_results compare 20261107-081348 20261107-081354
 ```
 
 ## What the report means
@@ -76,7 +90,7 @@ python -m src.results --dir sample_results compare 20261105-185430 20261105-1854
 ```
 main.py                    Provided; one measurement from each ammeter (fixed, see FIXES.md)
 config/config.yaml         All settings: ammeters, sampling, report, archive
-examples/run_tests.py      Provided example, fixed: runs the configured test on every ammeter
+examples/run_tests.py      Provided example, kept unchanged: marked "don't use it" (see FIXES.md)
 Ammeters/                  Provided emulators and client (fixed, see FIXES.md)
   base_ammeter.py          TCP server shared by all emulators
   *_Ammeter.py             The three emulators
@@ -88,7 +102,8 @@ src/
     analysis.py            Statistics, TestResult, text report
     archive.py             Run IDs, metadata, saving and loading runs (JSON)
     test_framework.py      AmmeterTestFramework: ties the parts together
-  results.py               Command line: list, show, compare archived runs
+  run.py                   Command line: run the test on ammeters (python -m src.run)
+  results.py               Command line: list, show, compare archived runs (python -m src.results)
   utils/
     config.py              Loading config.yaml, ConfigError
     emulators.py           Starting emulators and waiting until they accept connections
@@ -153,7 +168,7 @@ they must agree. Measurement `i` starts at `i / frequency` seconds, so 20 measur
 | Key | Meaning |
 |---|---|
 | `results_dir` | folder for archived runs; relative paths start at the project root; default `results/runs` |
-| `save_results` | whether `examples/run_tests.py` archives every run; default `true` |
+| `save_results` | whether `python -m src.run` archives every run (unless `--no-save`); default `true` |
 
 ## Using the framework from Python
 
@@ -204,7 +219,7 @@ Exit codes: `0` success, `1` a run or the archive cannot be read, `2` wrong usag
 
 ### Two kinds of testing in this project
 
-- **Testing ammeters** is what the framework *does*: `examples/run_tests.py` samples each ammeter, computes
+- **Testing ammeters** is what the framework *does*: `python -m src.run` samples each ammeter, computes
   statistics and archives the results. The ammeters (here: the emulators) are the system under test.
 - **Testing the framework** is what `tests/` *does*: the pytest suite checks that the framework itself works
   correctly: that it talks to an ammeter correctly, keeps its schedule, computes the statistics right, stores
@@ -237,6 +252,7 @@ pytest --cov=src --cov=Ammeters --cov-report=term-missing   # with line coverage
 | `test_sampling.py` | the count/duration/frequency rules; exact schedule, no drift, late measurements and schedule shift without a burst |
 | `test_analysis.py` | statistics on data with known results and edge cases; the report |
 | `test_archive.py` | saving and loading without loss (`loaded == saved`), run IDs, crash while writing, broken files, code version |
+| `test_run_cli.py` | `python -m src.run`: all or selected ammeters, sampling options, `--no-save`, errors and exit codes |
 | `test_results_cli.py` | `list`, `show`, `compare` output and exit codes |
 | `test_config.py` | `config.yaml` matches the assignment; every invalid setting; loading and starting emulators |
 | `test_emulators.py` | regression tests for the fixes in the provided emulators; emulator behaviour as documented |
@@ -253,7 +269,7 @@ How the suite stays fast and reliable:
 
 ### Continuous integration
 
-GitHub Actions runs the whole suite with coverage, `main.py` and `examples/run_tests.py` on Linux, Windows and
+GitHub Actions runs the whole suite with coverage, `main.py` and `python -m src.run` on Linux, Windows and
 macOS with Python 3.9 and 3.14 on every push (`.github/workflows/tests.yml`).
 
 ## Platform notes
@@ -261,7 +277,7 @@ macOS with Python 3.9 and 3.14 on every push (`.github/workflows/tests.yml`).
 - **macOS:** port 5000 is used by the AirPlay Receiver. The Greenlee emulator still starts there because it binds
   `127.0.0.1` with `SO_REUSEADDR`; if the port is busy on another system, change it in `config.yaml`.
 - **Timing precision depends on the operating system.** Measurements wait with `time.sleep()`, and how late the
-  system wakes the program up differs a lot. Measured lag of measurement starts (`examples/run_tests.py`,
+  system wakes the program up differs a lot. Measured lag of measurement starts (the test runner,
   20 measurements at 10 Hz) in CI and on a development machine:
 
   | Platform | Mean lag | Max lag |

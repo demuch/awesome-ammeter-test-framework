@@ -156,21 +156,34 @@ with `FileNotFoundError` when started from any other directory.
 
 **Verified:** the framework loads the config when started from `/tmp`; a missing file gives a `ConfigError`.
 
-## Fix 11: `examples/run_tests.py` does not run
+## Fix 11: README does not match the repository
 
-**Symptoms:**
-- `python examples/run_tests.py` failed with `ModuleNotFoundError: No module named 'src'`: Python looks for modules
+**Symptom:** the original README named files that do not exist: `Ammeters/main.py` (it is in the project root),
+`src/testing/AmmeterTester.py` (the file is `test_framework.py`) and `examples/run_test.py` (it is `run_tests.py`).
+
+**Fix:** a new `README.md` describes the actual files, checked against the repository. The original README is kept
+unchanged in `docs/ORIGINAL_README.md`.
+
+## Not fixed on purpose: `examples/run_tests.py`
+
+The original README describes this file as a "super lyze [lazy] example for run test **don't use it**", so it is
+kept exactly as provided and the framework has its own entry point, `python -m src.run`.
+
+The example does not run, and it cannot be repaired on its own, because it calls a framework that did not exist:
+
+- `python examples/run_tests.py` fails with `ModuleNotFoundError: No module named 'src'`: Python looks for modules
   in the script's directory (`examples/`), not in the project root.
-- `python -m examples.run_tests` failed with `TypeError: run_test() missing 1 required positional argument`.
+- `python -m examples.run_tests` fails with `TypeError: run_test() missing 1 required positional argument`.
+- `AmmeterTestFramework.run_test()` was an empty stub (`pass`); with an argument it would have returned `None`.
+- It does not start the emulators, has the ammeter list hardcoded and prints only empty "Results for ..." headers.
 
-Once these were fixed, three more problems would have followed: the emulators were never started, the ammeter list
-was hardcoded instead of taken from the config, and the results were never printed.
+Its comments show the intended plan (in Hebrew: "create the test framework", "run tests for all ammeter types",
+"compare results"). `python -m src.run` follows that plan: it creates `AmmeterTestFramework`, runs `run_test()` for
+every ammeter in `config.yaml`, archives the runs and prints a report for each, and adds command-line options
+(`--ammeter`, `--count`/`--duration`/`--frequency`, `--no-save`, `--config`).
 
-**Fix:** the project root is added to `sys.path` at the top of the script; the script starts the emulators,
-runs `run_test()` for every ammeter in `config.yaml` and prints a report for each. The structure of the original
-script (`main()`, one loop to run, one loop to print) is kept.
-
-**Verified:** works from the project root and from another directory; prints three reports.
+During development the example was first repaired in place (git history before commit `0d7fae7`); it was restored
+because "don't use it" is better respected by leaving the file alone than by changing it.
 
 ## Other changes to the provided code
 
@@ -183,14 +196,6 @@ These are not bug fixes, but they change code that came with the assignment:
   class; importing `TestLogger` in a test made pytest try to collect it and fail with a collection warning.
 - **`start_server()` takes an optional `ready` event**, set right after `listen()`, so callers wait until the
   emulator accepts connections instead of sleeping a fixed 5 seconds. Calling it without arguments works as before.
-
-## Fix 12: README does not match the repository
-
-**Symptom:** the original README named files that do not exist: `Ammeters/main.py` (it is in the project root),
-`src/testing/AmmeterTester.py` (the file is `test_framework.py`) and `examples/run_test.py` (it is `run_tests.py`).
-
-**Fix:** a new `README.md` describes the actual files, checked against the repository. The original README is kept
-unchanged in `docs/ORIGINAL_README.md`.
 
 ## Known issues not fixed yet
 

@@ -8,7 +8,7 @@ code see [FIXES.md](FIXES.md).
 ```mermaid
 flowchart LR
     MAIN["main.py<br>one measurement per ammeter"]
-    RT["examples/run_tests.py<br>full test of every ammeter"]
+    RT["python -m src.run<br>full test of every ammeter"]
     CLI["python -m src.results<br>list / show / compare"]
     CFG["config/config.yaml"]
 
