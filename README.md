@@ -127,6 +127,41 @@ times:
 Without matplotlib everything else works; `plot` says what to install, and `python -m src.run` notes that it skipped
 the plots.
 
+## Assessing ammeters
+
+`assess` ranks ammeters by reliability and shows how precisely the mean of each one is known. Several runs of one
+ammeter are pooled, which narrows the interval:
+
+```sh
+python -m src.results --dir sample_results assess 20261107-081348 20261107-081350 20261107-081352 20261107-081354 20261107-081356 20261107-081358
+```
+```
+Assessment of 3 ammeter(s) from 6 run(s)
+
+RANK AMMETER      RUNS MEASURED    OK      MEAN          95% CI OF MEAN     +-  SPREAD  RESPONSE SPREAD
+1    circutor        2       40  100%   0.02846      0.02374 .. 0.03317    17%     52%              22%
+2    entes           2       40  100%      68.2          56.05 .. 80.35    18%     56%              91%
+3    greenlee        2       40  100%    0.3316       0.04971 .. 0.6135    85%    266%              27%
+
+Most reliable: circutor (100% successful, relative spread 52%).
+Ranked by success rate (higher first), then relative spread of values, then relative spread of
+response times (lower first).
+95% CI: the range that contains the ammeter's true mean with 95% confidence; +- is its half-width
+relative to the mean. More measurements narrow it.
+This compares consistency and how precisely each mean is known, not accuracy: accuracy needs a known
+reference current, or ammeters measuring the same source at the same time. The emulators return
+independent random values, so their means cannot be compared with each other.
+```
+
+- **95% CI of the mean**: the range that contains the ammeter's true mean with 95% confidence (Student's t, from the
+  standard library: no scipy). `+-` is its half-width relative to the mean.
+- **Ranking**: success rate first (an ammeter that does not answer is unreliable however steady its values), then
+  relative spread of values, then relative spread of response times.
+- **Not accuracy.** Accuracy is closeness to the true current; it needs a known reference, or ammeters measuring the
+  same source at the same time. The emulators return independent random values, so the sample output can say that
+  Greenlee's mean is known only to about +-85% with 40 measurements, but not which emulator is "more correct". How
+  accuracy could be assessed with real devices is described in DESIGN.md.
+
 ## Project structure
 
 ```
@@ -147,9 +182,10 @@ src/
     analysis.py            Statistics, TestResult, text report
     archive.py             Run IDs, metadata, saving and loading runs (JSON)
     plots.py               Plots of a run and comparisons of runs (optional matplotlib)
+    assessment.py          Confidence intervals and reliability ranking of ammeters
     test_framework.py      AmmeterTestFramework: ties the parts together
   run.py                   Command line: run the test on ammeters (python -m src.run)
-  results.py               Command line: list, show, compare, plot archived runs (python -m src.results)
+  results.py               Command line: list, show, compare, plot, assess archived runs (python -m src.results)
   utils/
     config.py              Loading config.yaml, ConfigError
     emulators.py           Starting emulators and waiting until they accept connections
@@ -294,6 +330,7 @@ python -m src.results list [--ammeter NAME]       # all runs, newest first
 python -m src.results show RUN_ID                 # metadata and full report of one run
 python -m src.results compare RUN_ID RUN_ID ...   # metrics side by side, change of the last run vs the first
 python -m src.results plot RUN_ID [RUN_ID ...]    # PNG of one run, or a comparison (see Plots)
+python -m src.results assess RUN_ID [RUN_ID ...]  # reliability ranking and confidence intervals
 python -m src.results --dir FOLDER ...            # another archive folder
 ```
 
@@ -341,6 +378,7 @@ pytest --cov=src --cov=Ammeters --cov-report=term-missing   # with line coverage
 | `test_results_cli.py` | `list`, `show`, `compare` output and exit codes |
 | `test_config.py` | `config.yaml` matches the assignment; every invalid setting; loading and starting emulators |
 | `test_emulators.py` | regression tests for the fixes in the provided emulators; emulator behaviour as documented |
+| `test_assessment.py` | t values against statistical tables, an interval worked out by hand, pooling of runs, ranking rules, the report |
 | `test_plots.py` | plots are written in both themes, also for failed and late measurements; settings; a missing matplotlib gives a clear message |
 | `test_error_simulation.py` | each simulated fault reaches the framework as the right failure; probabilities, seeds, config errors, archiving |
 | `test_end_to_end.py` | the whole path from a config to the archive; `sample_results/` stays readable by the current code |

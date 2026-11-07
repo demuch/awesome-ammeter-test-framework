@@ -20,6 +20,7 @@ flowchart LR
         AR["ResultArchive<br>archive.py"]
         EM["start_emulators()<br>utils/emulators.py"]
         PL["plots<br>plots.py (optional)"]
+        AS["assess()<br>assessment.py"]
         FW --> SA --> API
         FW --> AN
         FW --> AR
@@ -34,6 +35,7 @@ flowchart LR
     CLI --> AR
     CLI --> AN
     CLI --> PL
+    CLI --> AS
     RT --> PL
 
     API --> CL["get_current()<br>Ammeters/client.py"]
@@ -187,6 +189,26 @@ stay as it is.
   scales differ by a factor of hundreds. All boxes share one color, because the runs are named on the axis.
 - **Light and dark versions** use separately chosen colors (not an inversion), checked for contrast against their
   background; the README shows the one that matches the reader's GitHub theme.
+
+### Assessment of ammeters
+
+- **Precision, not accuracy.** Accuracy (closeness to the true current) needs a reference; the emulators return
+  independent random values, so claiming that one is "more accurate" would be false. What the data supports is how
+  consistent each ammeter is and how precisely its mean is known, and the report says so in every output.
+- **95% confidence interval of the mean with Student's t**, because a series of 20-40 measurements is too short for
+  the normal value 1.96 (for 20 values t is 2.09). The t values come from the standard table up to 30 degrees of
+  freedom and from the Cornish-Fisher expansion above (within 0.0003 of the table); the expansion alone is wrong
+  for very small samples (9.71 instead of 12.706 for one degree of freedom), which is why the table is used there.
+  scipy would provide the same, but is a large dependency.
+- **Runs of one ammeter are pooled**: more measurements give a narrower interval than judging runs one by one.
+- **The ranking rule is explicit**: success rate, then relative spread of values, then relative spread of response
+  times. An ammeter that does not answer ranks last however steady it is.
+
+**How accuracy could be assessed with real devices:** connect the ammeters to the same circuit, or to a reference
+source with a known current, and query them at the same moments (this needs concurrent sampling, see Limitations).
+Then, per moment, take the difference between each ammeter and the reference (or between two ammeters): the mean of
+the differences is the systematic offset, their spread is the agreement, and a confidence interval of the mean
+difference says whether the offset is real or noise.
 
 ### Dependencies
 
