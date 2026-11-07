@@ -15,6 +15,7 @@ import sys
 from pathlib import Path
 from typing import Callable, List, Optional, Sequence, Tuple
 
+from Ammeters.error_simulation import FAULTS, ErrorSimulation
 from src.testing.analysis import format_report
 from src.testing.archive import ArchiveError, ResultArchive, RunRecord, archive_settings_from_config
 from src.utils.config import DEFAULT_CONFIG_PATH, ConfigError, load_config
@@ -109,12 +110,24 @@ def _show(record: RunRecord) -> str:
         f"Ammeter    {a.name} at {a.host}:{a.port}, command {a.command.decode('utf-8')!r}"
         + (f", emulator {a.emulator}" if a.emulator else ", real device"),
         f"Sampling   {config.count} measurements over {config.duration_s:g} s at {config.frequency_hz:g} Hz",
+        *([_format_error_simulation(a.simulate_errors)] if a.simulate_errors else []),
         f"Python     {env.get('python', 'unknown')} on {env.get('platform', 'unknown')}",
         f"Code       {env.get('code_version', 'unknown')}",
         "",
         format_report(record.result),
     ]
     return "\n".join(lines)
+
+
+def _format_error_simulation(errors: ErrorSimulation) -> str:
+    """
+    :param errors: Error simulation of the run's emulator.
+    :returns: One line naming the simulated faults, so such a run is not mistaken for a failing device.
+    """
+    faults = ", ".join(f"{fault} {getattr(errors, fault):.0%}" for fault in FAULTS if getattr(errors, fault))
+    details = [f"slow replies {errors.slow_reply_s:g} s"] if errors.slow_reply else []
+    details += [f"seed {errors.seed}"] if errors.seed is not None else []
+    return f"Simulated  {faults or 'no faults'}" + (f" ({', '.join(details)})" if details else "")
 
 
 def _compare(records: List[RunRecord]) -> str:

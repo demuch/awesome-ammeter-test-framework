@@ -67,7 +67,10 @@ class _EmulatorThread(threading.Thread):
         :attr:`error` and :attr:`ready` is set, so the waiting caller does not have to wait for the timeout.
         """
         try:
-            self.emulator_class(self.ammeter.port).start_server(self.ready)
+            errors = self.ammeter.simulate_errors
+            # Passed only when set, so emulator classes with their own __init__(port) keep working
+            emulator = self.emulator_class(self.ammeter.port, errors) if errors else self.emulator_class(self.ammeter.port)
+            emulator.start_server(self.ready)
         except Exception as e:
             self.error = e
             self.ready.set()

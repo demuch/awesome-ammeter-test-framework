@@ -6,6 +6,8 @@ import random
 from abc import ABC, abstractmethod
 from typing import Optional
 
+from Ammeters.error_simulation import ErrorSimulation
+
 NotImplementedErrorMsg = "Subclasses must implement this property."
 
 # Replies that start with this prefix are errors, not measurements
@@ -14,9 +16,15 @@ ERROR_PREFIX = b"ERROR"
 logger = logging.getLogger(__name__)
 
 class AmmeterEmulatorBase(ABC):
-    def __init__(self, port: int):
+    def __init__(self, port: int, errors: Optional[ErrorSimulation] = None):
+        """
+        :param port: TCP port to listen on.
+        :param errors: Optional error simulation; without it every valid command gets a correct reply.
+        """
         self.port = port
         random.seed(time.time())  # Seed the random number generator for each instance
+        self.errors = errors
+        self._fault_generator = errors.new_generator() if errors else None
 
     def start_server(self, ready: Optional[threading.Event] = None):
         """
@@ -47,7 +55,8 @@ class AmmeterEmulatorBase(ABC):
     def _handle_request(self, conn: socket.socket):
         """
         Reads one command from the client and sends the reply: the measured current for the
-        expected command, or an ERROR reply for anything else.
+        expected command, or an ERROR reply for anything else. With error simulation, a valid command
+        may instead get a simulated fault.
 
         :param conn: Socket of the accepted client connection.
         :raises OSError: If the client disconnects while the reply is being sent.
@@ -57,6 +66,19 @@ class AmmeterEmulatorBase(ABC):
         if not data:
             return  # Client closed the connection without sending a command
         if data == self.get_current_command:
+            fault = self.errors.pick(self._fault_generator) if self.errors else None
+            if fault:
+                logger.debug(f"{self.__class__.__name__}: simulated {fault}")
+            if fault == "error_reply":
+                conn.sendall(ERROR_PREFIX + b": simulated failure")
+                return
+            if fault == "garbage":
+                conn.sendall(b"#simulated garbage#")
+                return
+            if fault == "no_reply":
+                return  # Closing without a reply
+            if fault == "slow_reply":
+                time.sleep(self.errors.slow_reply_s)
             # Call the specific measure_current() method defined in subclasses
             current = self.measure_current()
             conn.sendall(str(current).encode('utf-8'))

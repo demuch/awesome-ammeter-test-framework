@@ -1,8 +1,10 @@
+import math
 import time
-from dataclasses import dataclass
+from dataclasses import dataclass, fields
 from typing import Any, Dict, Optional
 
 from Ammeters.client import AmmeterError, get_current
+from Ammeters.error_simulation import FAULTS, ErrorSimulation
 from src.utils.config import ConfigError
 
 DEFAULT_HOST = 'localhost'
@@ -48,6 +50,8 @@ class Ammeter:
     :ivar timeout: Seconds to wait for connecting and for each chunk of the reply.
     :ivar emulator: Import path of the emulator class, e.g. ``"Ammeters.Greenlee_Ammeter.GreenleeAmmeter"``,
         or ``None`` for a real device that is not emulated.
+    :ivar simulate_errors: Faults the emulator simulates, or ``None`` for an emulator that always answers
+        correctly. Archived with the run, so runs with simulated faults can be told apart.
     """
     name: str
     port: int
@@ -55,6 +59,7 @@ class Ammeter:
     host: str = DEFAULT_HOST
     timeout: float = DEFAULT_TIMEOUT_S
     emulator: Optional[str] = None
+    simulate_errors: Optional[ErrorSimulation] = None
 
     def measure(self) -> Measurement:
         """
@@ -106,7 +111,7 @@ def _ammeter_from_settings(name: str, settings: Any) -> Ammeter:
 
     :param name: Ammeter name, the key in the ``ammeters`` section.
     :param settings: Value of that key: a mapping with ``port``, ``command`` and optionally ``host``, ``timeout``
-        and ``emulator``.
+        ``emulator`` and ``simulate_errors``.
     :returns: The ammeter.
     :raises ConfigError: A required setting is missing or a setting has an invalid value.
     """
@@ -143,4 +148,49 @@ def _ammeter_from_settings(name: str, settings: Any) -> Ammeter:
             raise ConfigError(f"Ammeter '{name}': an emulator runs on this machine, "
                               f"but 'host' is {host!r}; remove 'emulator' or 'host'")
 
-    return Ammeter(name, port, command.encode('utf-8'), host, float(timeout), emulator)
+    simulate_errors = settings.get("simulate_errors")
+    if simulate_errors is not None:
+        if emulator is None:
+            raise ConfigError(f"Ammeter '{name}': 'simulate_errors' needs an 'emulator'; a real device cannot be told to fail")
+        simulate_errors = _error_simulation_from_settings(name, simulate_errors)
+
+    return Ammeter(name, port, command.encode('utf-8'), host, float(timeout), emulator, simulate_errors)
+
+
+def _error_simulation_from_settings(name: str, settings: Any) -> ErrorSimulation:
+    """
+    Validates the ``simulate_errors`` settings of one ammeter.
+
+    :param name: Ammeter name, used in error messages.
+    :param settings: Mapping with fault probabilities, ``slow_reply_s`` and ``seed``.
+    :returns: The error simulation.
+    :raises ConfigError: A key is unknown (a typo would otherwise silently mean 0), a probability is not from
+        0 to 1, the probabilities add up to more than 1, ``slow_reply_s`` is not positive, or ``seed`` is not
+        a whole number.
+    """
+    if not isinstance(settings, dict):
+        raise ConfigError(f"Ammeter '{name}': 'simulate_errors' must be a mapping of fault probabilities")
+    known = [f.name for f in fields(ErrorSimulation)]
+    unknown = [key for key in settings if key not in known]
+    if unknown:
+        raise ConfigError(f"Ammeter '{name}': unknown key(s) {unknown} in 'simulate_errors'; known: {known}")
+
+    for fault in FAULTS:
+        value = settings.get(fault, 0.0)
+        # bool is a subclass of int, so 'true' would otherwise pass as probability 1
+        if isinstance(value, bool) or not isinstance(value, (int, float)) or not 0 <= value <= 1:
+            raise ConfigError(f"Ammeter '{name}': simulate_errors.{fault} must be a probability from 0 to 1, got {value!r}")
+    total = sum(settings.get(fault, 0.0) for fault in FAULTS)
+    if total > 1 + 1e-9:
+        raise ConfigError(f"Ammeter '{name}': the simulate_errors probabilities add up to {total:g}, more than 1")
+
+    slow_reply_s = settings.get("slow_reply_s", ErrorSimulation.slow_reply_s)
+    if isinstance(slow_reply_s, bool) or not isinstance(slow_reply_s, (int, float)) \
+            or not math.isfinite(slow_reply_s) or slow_reply_s <= 0:
+        raise ConfigError(f"Ammeter '{name}': simulate_errors.slow_reply_s must be a positive number of seconds, got {slow_reply_s!r}")
+    seed = settings.get("seed")
+    if seed is not None and (isinstance(seed, bool) or not isinstance(seed, int)):
+        raise ConfigError(f"Ammeter '{name}': simulate_errors.seed must be a whole number, got {seed!r}")
+
+    return ErrorSimulation(**{**{f: float(settings.get(f, 0.0)) for f in FAULTS},
+                              "slow_reply_s": float(slow_reply_s), "seed": seed})

@@ -9,6 +9,7 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
+from Ammeters.error_simulation import ErrorSimulation
 from src.testing.ammeter import Ammeter, Measurement
 from src.testing.analysis import TestResult, analyze
 from src.testing.sampling import Sample, SampleSeries, SamplingConfig
@@ -132,6 +133,8 @@ def record_from_dict(data: Any) -> RunRecord:
     try:
         ammeter_data = dict(data["ammeter"])
         ammeter_data["command"] = ammeter_data["command"].encode("utf-8")
+        if ammeter_data.get("simulate_errors") is not None:  # Missing in files written before it existed
+            ammeter_data["simulate_errors"] = ErrorSimulation(**ammeter_data["simulate_errors"])
         series_data = data["series"]
         series = SampleSeries(
             ammeter=series_data["ammeter"],
