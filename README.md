@@ -57,9 +57,13 @@ Options change a single run without editing the config:
 python -m src.run --ammeter greenlee entes        # only these ammeters
 python -m src.run --count 100 --frequency 50      # any two of --count, --duration, --frequency
 python -m src.run --no-save                       # do not archive this run
-python -m src.run --config other.yaml             # another configuration file
+python -m src.run --config my_settings.yaml       # your own copy of config.yaml with other settings
 python -m src.run --help
 ```
+
+`--config` lets you keep several ready-made sets of settings (a quick check, a long overnight run, a bench with
+real devices) instead of editing `config/config.yaml` back and forth. The path is relative to the current directory,
+like any command-line path; `results_dir` inside a config is relative to the project root.
 
 Exit codes: `0` every ammeter was tested; `1` a configuration error, an emulator that did not start or a run that
 could not be archived; `2` wrong usage. Failed measurements do not change the exit code: they are results of the

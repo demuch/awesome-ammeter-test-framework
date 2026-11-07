@@ -8,11 +8,11 @@ code see [FIXES.md](FIXES.md).
 ```mermaid
 flowchart LR
     MAIN["main.py<br>one measurement per ammeter"]
-    RT["python -m src.run<br>full test of every ammeter"]
-    CLI["python -m src.results<br>list / show / compare"]
+    RT["python -m src.run<br>src/run.py<br>full test of every ammeter"]
+    CLI["python -m src.results<br>src/results.py<br>list / show / compare"]
     CFG["config/config.yaml"]
 
-    subgraph framework["Framework (src/)"]
+    subgraph framework["Framework core (src/testing, src/utils)"]
         FW["AmmeterTestFramework<br>test_framework.py"]
         SA["sample()<br>sampling.py"]
         API["Ammeter.measure()<br>ammeter.py"]
@@ -40,7 +40,9 @@ flowchart LR
 
 Solid arrows mean "calls"; the dotted arrow is the recomputation of metrics when a run is loaded from the archive.
 `main.py` and the command line also read `config.yaml` (through `load_config`); that is left out to keep the diagram
-readable. `Ammeters/` is the provided code, outside the framework.
+readable. The entry points on the left are drawn outside the core: `main.py` is provided code, `src/run.py` and
+`src/results.py` are the framework's command-line programs. `Ammeters/` is the provided emulator and client code.
+`examples/run_tests.py` is not shown: it is kept unchanged as provided and calls nothing (see FIXES.md).
 
 Each layer knows only the one below it:
 
