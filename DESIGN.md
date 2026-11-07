@@ -96,6 +96,21 @@ stay as it is.
   dict in code (needs a code change per emulator), automatic registration of subclasses (implicit, harder to debug).
   All classes are loaded before any emulator starts, so a typo never leaves a half-started setup.
 
+### Error simulation
+
+- **Faults are simulated by the emulators, configured per ammeter** (`simulate_errors`): an `ERROR` reply, a reply
+  that is not a number, no reply, or a slow reply. With live emulators misbehaving, an ordinary run shows how the
+  framework counts failures, groups their reasons and shifts the schedule. Only emulators can be told to fail;
+  `simulate_errors` without `emulator` is a config error.
+- **One random number per request falls into one probability range**, in a fixed order, so the probabilities do not
+  overlap and the rest are normal replies; they must add up to at most 1.
+- **A separate random generator with an optional seed.** The provided emulators reseed the module-level `random` with
+  the current time for their values; the faults use their own `random.Random(seed)`, so a seed makes the faults
+  repeatable (needed by tests) without fixing the measured values.
+- **The settings are archived with the run** and shown by `show`, so a run with simulated faults is never mistaken
+  for a failing device.
+- **Unknown keys are errors**: a typo such as `garbge: 0.1` would otherwise silently mean "no faults".
+
 ### Starting emulators
 
 - **Wait for a ready signal, not a fixed sleep.** The original `main.py` slept 5 s and hoped the servers were up.

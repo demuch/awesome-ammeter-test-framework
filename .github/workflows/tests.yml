@@ -48,3 +48,6 @@ jobs:
 
       - name: Run python -m src.run
         run: python -m src.run
+
+      - name: Run python -m src.run with simulated errors
+        run: python -m src.run --config config/error_simulation.yaml

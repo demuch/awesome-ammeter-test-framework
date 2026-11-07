@@ -194,6 +194,9 @@ These are not bug fixes, but they change code that came with the assignment:
   default), unknown commands and failed requests are `WARNING` (always shown). Message texts are unchanged.
 - **`TestLogger` has `__test__ = False`.** pytest collects every class whose name starts with `Test` as a test
   class; importing `TestLogger` in a test made pytest try to collect it and fail with a collection warning.
+- **Emulators can simulate errors.** `AmmeterEmulatorBase.__init__()` takes an optional `ErrorSimulation`
+  (new module `Ammeters/error_simulation.py`), and `_handle_request()` may answer a valid command with a simulated
+  fault. Without the parameter the behaviour is unchanged; the three emulator classes are not modified.
 - **`start_server()` takes an optional `ready` event**, set right after `listen()`, so callers wait until the
   emulator accepts connections instead of sleeping a fixed 5 seconds. Calling it without arguments works as before.
 

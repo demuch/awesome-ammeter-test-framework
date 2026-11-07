@@ -94,11 +94,13 @@ python -m src.results --dir sample_results compare 20261107-081348 20261107-0813
 ```
 main.py                    Provided; one measurement from each ammeter (fixed, see FIXES.md)
 config/config.yaml         All settings: ammeters, sampling, report, archive
+config/error_simulation.yaml  Example: the emulators with simulated faults
 examples/run_tests.py      Provided example, kept unchanged: marked "don't use it" (see FIXES.md)
 Ammeters/                  Provided emulators and client (fixed, see FIXES.md)
   base_ammeter.py          TCP server shared by all emulators
   *_Ammeter.py             The three emulators
   client.py                get_current(): one request, returns a float or raises a typed error
+  error_simulation.py      New: ErrorSimulation, the faults an emulator can simulate
 src/
   testing/
     ammeter.py             Unified API: Ammeter.measure() -> Measurement, load_ammeters()
@@ -133,6 +135,7 @@ One entry per ammeter; the key is its name.
 | `host` | no | host name or IP address; default `localhost` |
 | `timeout` | no | seconds to wait for connecting and for each part of the reply; default `5` |
 | `emulator` | no | import path of the emulator class to start for this ammeter, e.g. `Ammeters.Greenlee_Ammeter.GreenleeAmmeter`; without it the ammeter is treated as a real device and only queried |
+| `simulate_errors` | no | emulators only: faults to simulate, see [Error simulation](#error-simulation) |
 
 The configured ammeters use the ports and commands of the assignment:
 
@@ -147,6 +150,42 @@ The configured ammeters use the ports and commands of the assignment:
 - a real device: add an entry with `host`, `port` and `command`;
 - a new emulator: write a subclass of `AmmeterEmulatorBase` (see the three existing ones) and add an entry with
   its import path in `emulator`.
+
+### Error simulation
+
+An emulator can misbehave on purpose, so you can watch the framework handle failures with live emulators. Each
+value is the probability of a fault for a valid command, from 0 to 1, at most 1 in total:
+
+```yaml
+greenlee:
+  port: 5000
+  command: "MEASURE_GREENLEE -get_measurement"
+  emulator: "Ammeters.Greenlee_Ammeter.GreenleeAmmeter"
+  simulate_errors:
+    error_reply: 0.05    # answer "ERROR: simulated failure"
+    garbage: 0.05        # answer something that is not a number
+    no_reply: 0.05       # close the connection without answering
+    slow_reply: 0.1      # answer correctly, but after slow_reply_s seconds
+    slow_reply_s: 0.3    # default 0.5
+    seed: 42             # optional: the same requests fail on every run
+```
+
+`config/error_simulation.yaml` is a ready example with a different fault for each emulator:
+
+```sh
+python -m src.run --config config/error_simulation.yaml
+```
+```
+=== greenlee: 20 measurements, 15 ok, 5 failed (75%) ===
+...
+Failures       5x localhost:5000: ERROR: simulated failure
+=== circutor: 20 measurements, 20 ok, 0 failed (100%) ===
+Response time  mean 76.91 ms  median 0.81 ms  stdev 135.18 ms  min 0.65 ms  max 306.06 ms  relative_spread 175.8%
+Timing         10 Hz planned, 6.94 Hz actual; lag mean 44.0 ms, max 210.9 ms; 4 late, schedule shifted by 834.1 ms
+```
+
+The simulation settings are archived with the run, and `show` lists them, so a run with simulated faults is not
+mistaken for a failing device. With `seed` the faults hit the same requests every time, which the tests rely on.
 
 ### `testing.sampling`
 
@@ -260,6 +299,7 @@ pytest --cov=src --cov=Ammeters --cov-report=term-missing   # with line coverage
 | `test_results_cli.py` | `list`, `show`, `compare` output and exit codes |
 | `test_config.py` | `config.yaml` matches the assignment; every invalid setting; loading and starting emulators |
 | `test_emulators.py` | regression tests for the fixes in the provided emulators; emulator behaviour as documented |
+| `test_error_simulation.py` | each simulated fault reaches the framework as the right failure; probabilities, seeds, config errors, archiving |
 | `test_end_to_end.py` | the whole path from a config to the archive; `sample_results/` stays readable by the current code |
 
 How the suite stays fast and reliable:
@@ -273,7 +313,7 @@ How the suite stays fast and reliable:
 
 ### Continuous integration
 
-GitHub Actions runs the whole suite with coverage, `main.py` and `python -m src.run` on Linux, Windows and
+GitHub Actions runs the whole suite with coverage, `main.py`, `python -m src.run` and the error simulation example on Linux, Windows and
 macOS with Python 3.9 and 3.14 on every push (`.github/workflows/tests.yml`).
 
 ## Platform notes
