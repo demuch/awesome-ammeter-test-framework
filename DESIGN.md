@@ -90,6 +90,15 @@ stay as it is.
   several TCP parts), and rejects empty replies, `ERROR` replies, non-numbers and `nan`/`inf`, which `float()`
   would accept and which would silently corrupt the statistics.
 
+### Pass/fail
+
+- **The framework does not decide whether an ammeter passes.** A verdict needs expectations, and those come from the
+  requirements of the device or of the bench, not from the measuring tool; the same run can pass one test and fail
+  another. The emulators have no requirements, so thresholds built into the framework would be invented numbers.
+  The exit codes of `python -m src.run` say only whether the run worked (0, 1, 2); a pass/fail decision is a test
+  on top of the framework (README shows one with pytest), where the expectations are visible in the code.
+  Configurable acceptance criteria in `config.yaml` were considered and rejected for this reason.
+
 ### Configuration
 
 - **Everything is in `config.yaml` and is validated before anything runs**, with a `ConfigError` that names the

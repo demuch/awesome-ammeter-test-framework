@@ -68,7 +68,8 @@ like any command-line path; `results_dir` inside a config is relative to the pro
 
 Exit codes: `0` every ammeter was tested; `1` a configuration error, an emulator that did not start or a run that
 could not be archived; `2` wrong usage. Failed measurements do not change the exit code: they are results of the
-test, shown in the report.
+test, shown in the report. Whether an ammeter passes is decided by a test, see
+[Pass/fail: decided by tests](#passfail-decided-by-tests).
 
 List your archived runs, then look at the sample runs that come with the repository (a run ID can be shortened to
 any unique beginning):
@@ -316,6 +317,57 @@ print(record.run_id)
 A failed measurement does not raise: it is kept in the series with its error, so one failure does not stop a test.
 `run_test()` also accepts its own `SamplingConfig`, e.g.
 `framework.run_test("entes", SamplingConfig.from_values(count=100, frequency_hz=50))`.
+
+## Pass/fail: decided by tests
+
+The framework measures and reports; it deliberately does not decide whether an ammeter passes. A verdict needs
+expectations, and expectations come from the requirements of the device or of the test bench (for example "every
+request is answered" or "no reply takes longer than 50 ms"), not from the measuring tool. The same run can pass one
+test and fail another. The emulators of this assignment have no such requirements, so any threshold built into the
+framework would be made up.
+
+So the exit codes of `python -m src.run` only say whether the run itself worked. A pass/fail decision is written as
+a test on top of the framework, where the expectations are visible in the code. With pytest:
+
+```python
+import pytest
+
+from src.testing.test_framework import AmmeterTestFramework
+from src.utils.emulators import start_emulators
+
+
+@pytest.fixture(scope="module")
+def framework():
+    """One framework and one set of emulators for all tests in this file."""
+    framework = AmmeterTestFramework()   # or AmmeterTestFramework("config/error_simulation.yaml") to see it fail
+    start_emulators(framework.ammeters)
+    return framework
+
+
+def test_greenlee_answers_every_request(framework):
+    """The requirement: every request gets a valid measurement."""
+    result = framework.run_test("greenlee")
+    assert result.success_rate == 1.0, framework.report(result)
+
+
+def test_greenlee_answers_within_50_ms(framework):
+    """The requirement: no reply takes longer than 50 ms."""
+    result = framework.run_test("greenlee")
+    assert result.response_time.max < 0.050, framework.report(result)
+```
+
+With the emulators of `config/config.yaml` both tests pass; with `config/error_simulation.yaml` the first one
+fails, and the framework's report is the failure message:
+
+```
+E       AssertionError: === greenlee: 20 measurements, 15 ok, 5 failed (75%) ===
+E         ...
+E         Failures       5x localhost:5000: ERROR: simulated failure
+E       assert 0.75 == 1.0
+```
+
+These would be tests of the ammeters. They are not part of `tests/`, which tests the framework itself (see
+[Tests of the framework](#tests-of-the-framework)).
 
 ## Result archive
 
